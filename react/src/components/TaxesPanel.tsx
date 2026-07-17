@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { formatCurrency } from '../engine/finance';
 import { calculateAnnualTax, getW4Complexity } from '../engine/taxes';
 import { W4Form } from '../engine/types';
+import { TaxFilingModal } from './TaxFilingModal';
 
 export function TaxesPanel() {
   const state = useGameStore();
   const updateW4 = useGameStore((s) => s.updateW4);
   const fileTaxes = useGameStore((s) => s.fileTaxes);
   const complexity = getW4Complexity(state.stage);
+  const [showFilingModal, setShowFilingModal] = useState(false);
 
   const handleW4Change = (field: string, value: string | number | boolean) => {
     updateW4({ ...state.w4, [field]: value } as W4Form);
@@ -19,6 +21,7 @@ export function TaxesPanel() {
   const canFile = weeksInYear >= 50; // can file near end of year
 
   return (
+    <>
     <div>
       <h2 style={{ marginBottom: '4px' }}>Taxes</h2>
       <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '20px' }}>
@@ -125,7 +128,7 @@ export function TaxesPanel() {
           <span className="card-title">Tax Return Preview</span>
           <button
             className="btn btn-primary"
-            onClick={fileTaxes}
+            onClick={() => setShowFilingModal(true)}
             disabled={!canFile}
           >
             {canFile ? 'File Return' : `File in ${52 - weeksInYear} weeks`}
@@ -176,5 +179,16 @@ export function TaxesPanel() {
         )}
       </div>
     </div>
+
+    {showFilingModal && (
+      <TaxFilingModal
+        onClose={() => setShowFilingModal(false)}
+        onFile={() => {
+          fileTaxes();
+          setShowFilingModal(false);
+        }}
+      />
+    )}
+    </>
   );
 }

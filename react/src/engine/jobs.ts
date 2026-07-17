@@ -21,6 +21,34 @@ export function getAvailableJobsForStage(state: GameState): Job[] {
     // Don't show current job
     if (state.currentJob && state.currentJob.id === job.id) return false;
 
+    // Check promotion prerequisites
+    if (job.promotesFrom) {
+      const weeksRequired = job.weeksRequired || 12;
+      // Player must have worked the prerequisite job
+      const hasWorkedPrereq = state.previousJobs.includes(job.promotesFrom) ||
+        (state.currentJob && state.currentJob.id === job.promotesFrom);
+
+      if (!hasWorkedPrereq) return false;
+
+      // Check time in the prerequisite role
+      const prereqHistory = state.jobHistory.find(h => h.job.id === job.promotesFrom);
+      const currentlyInPrereq = state.currentJob && state.currentJob.id === job.promotesFrom;
+
+      let weeksInRole = 0;
+      if (prereqHistory) {
+        weeksInRole = prereqHistory.endWeek - prereqHistory.startWeek;
+      }
+      if (currentlyInPrereq) {
+        // Find when current job started (latest jobHistory entry or week 0)
+        const lastHistoryEnd = state.jobHistory.length > 0
+          ? state.jobHistory[state.jobHistory.length - 1].endWeek
+          : 0;
+        weeksInRole = state.currentWeek - lastHistoryEnd;
+      }
+
+      if (weeksInRole < weeksRequired) return false;
+    }
+
     return true;
   });
 }

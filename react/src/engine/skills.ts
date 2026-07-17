@@ -62,7 +62,7 @@ export function meetsJobRequirements(job: Job, state: GameState): { eligible: bo
   const reasons: string[] = [];
 
   // Check car requirement
-  if (job.carNeeded && !state.vehicle.owned) {
+  if (job.carNeeded && !state.vehicle.owned && !state.vehicle.leased) {
     reasons.push('Requires a car');
   }
 

@@ -7,6 +7,7 @@ import { CREDIT_CARD_OPTIONS } from '../engine/constants';
 export function CreditPanel() {
   const state = useGameStore();
   const openCard = useGameStore((s) => s.openCreditCard);
+  const closeCard = useGameStore((s) => s.closeCreditCard);
   const makePayment = useGameStore((s) => s.makeCreditCardPayment);
   const [paymentAmounts, setPaymentAmounts] = useState<Record<string, string>>({});
 
@@ -103,6 +104,15 @@ export function CreditPanel() {
                   </button>
                 </div>
               )}
+              <div style={{ marginTop: '8px' }}>
+                <button
+                  className="btn btn-outline"
+                  style={{ fontSize: '11px', padding: '4px 8px', color: 'var(--accent-red)', borderColor: 'var(--accent-red)' }}
+                  onClick={() => closeCard(card.id)}
+                >
+                  Close Account
+                </button>
+              </div>
             </div>
           ))}
         </div>

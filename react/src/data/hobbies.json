@@ -1,0 +1,143 @@
+[
+  {
+    "id": "gym_membership",
+    "name": "Gym Membership",
+    "weeklyCost": 12,
+    "description": "Work out at the local gym. Builds endurance and discipline.",
+    "icon": "🏋️",
+    "skillsGained": {
+      "physical_endurance": 3,
+      "time_management": 1
+    }
+  },
+  {
+    "id": "reading_club",
+    "name": "Book Club",
+    "weeklyCost": 5,
+    "description": "Read and discuss books with a local group. Expands your mind cheaply.",
+    "icon": "📚",
+    "skillsGained": {
+      "communication": 2,
+      "problem_solving": 2
+    }
+  },
+  {
+    "id": "cooking_class",
+    "name": "Cooking Class",
+    "weeklyCost": 25,
+    "description": "Learn to cook gourmet meals. Saves money on dining out long-term.",
+    "icon": "👨‍🍳",
+    "skillsGained": {
+      "creativity": 3,
+      "time_management": 2
+    }
+  },
+  {
+    "id": "toastmasters",
+    "name": "Toastmasters",
+    "weeklyCost": 8,
+    "description": "Practice public speaking and leadership. Builds executive presence.",
+    "icon": "🎤",
+    "skillsGained": {
+      "communication": 4,
+      "leadership": 3,
+      "negotiation": 1
+    }
+  },
+  {
+    "id": "coding_bootcamp_hobby",
+    "name": "Online Coding Practice",
+    "weeklyCost": 15,
+    "description": "Practice coding challenges and build side projects on evenings.",
+    "icon": "💻",
+    "skillsGained": {
+      "technical": 4,
+      "problem_solving": 3
+    }
+  },
+  {
+    "id": "volunteering",
+    "name": "Volunteering",
+    "weeklyCost": 0,
+    "description": "Help at the local food bank. Costs nothing, builds character and community connections.",
+    "icon": "🤝",
+    "skillsGained": {
+      "teamwork": 3,
+      "leadership": 2,
+      "communication": 1,
+      "responsibility": 2
+    }
+  },
+  {
+    "id": "art_class",
+    "name": "Art Class",
+    "weeklyCost": 20,
+    "description": "Paint, sketch, and create. Unlocks creative thinking for design roles.",
+    "icon": "🎨",
+    "skillsGained": {
+      "creativity": 5,
+      "problem_solving": 1
+    }
+  },
+  {
+    "id": "investing_club",
+    "name": "Investing Club",
+    "weeklyCost": 10,
+    "description": "Meet weekly to discuss markets, strategies, and portfolio theory.",
+    "icon": "📈",
+    "skillsGained": {
+      "financial_acumen": 4,
+      "data_analysis": 2,
+      "negotiation": 1
+    }
+  },
+  {
+    "id": "martial_arts",
+    "name": "Martial Arts",
+    "weeklyCost": 30,
+    "description": "Train discipline, focus, and physical conditioning.",
+    "icon": "🥋",
+    "skillsGained": {
+      "physical_endurance": 4,
+      "responsibility": 2,
+      "time_management": 2
+    }
+  },
+  {
+    "id": "networking_events",
+    "name": "Networking Events",
+    "weeklyCost": 15,
+    "description": "Attend mixers and professional meetups. Opens doors to better jobs.",
+    "icon": "🍸",
+    "skillsGained": {
+      "communication": 3,
+      "negotiation": 2,
+      "sales": 2,
+      "leadership": 1
+    }
+  },
+  {
+    "id": "music_lessons",
+    "name": "Music Lessons",
+    "weeklyCost": 35,
+    "description": "Learn guitar or piano. Creative outlet with long-term rewards.",
+    "icon": "🎸",
+    "skillsGained": {
+      "creativity": 3,
+      "time_management": 2,
+      "problem_solving": 1
+    }
+  },
+  {
+    "id": "running_club",
+    "name": "Running Club",
+    "weeklyCost": 0,
+    "description": "Run with a group for free. Great for endurance and mental clarity.",
+    "icon": "🏃",
+    "skillsGained": {
+      "physical_endurance": 4,
+      "time_management": 1,
+      "teamwork": 1
+    }
+  }
+]

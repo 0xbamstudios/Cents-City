@@ -1,6 +1,6 @@
 // Progression engine - stage advancement and game events
 import { GameState, GameStage, AdvisorMessage } from './types';
-import { THRESHOLDS, LEVEL_TIME_MINUTES } from './constants';
+import { THRESHOLDS, LEVEL_TIME_MINUTES, FEATURE_FLAGS } from './constants';
 
 export function checkStageProgression(state: GameState): GameStage {
   const totalCash = state.checking.balance + state.savings.balance;
@@ -28,6 +28,7 @@ export function checkStageProgression(state: GameState): GameStage {
 }
 
 export function canSpeedUp(state: GameState): boolean {
+  if (FEATURE_FLAGS.DISABLE_SPEED_LOCK) return true;
   const elapsedMs = state.realTimePlayedMs - state.levelStartTime;
   const elapsedMinutes = elapsedMs / 60000;
   return elapsedMinutes >= LEVEL_TIME_MINUTES;

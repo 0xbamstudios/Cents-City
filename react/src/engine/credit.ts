@@ -29,6 +29,8 @@ export function openCreditCard(cardId: string, currentScore: number): CreditCard
     name: cardDef.name,
     limit: cardDef.limit,
     balance: 0,
+    statementBalance: 0,
+    lastStatementWeek: 0,
     apr: cardDef.apr,
     minimumPayment: 25,
     paymentHistory: [],
@@ -45,23 +47,42 @@ export function makePurchaseOnCard(card: CreditCard, amount: number): CreditCard
 
 export function makeCardPayment(card: CreditCard, amount: number, week: number): CreditCard {
   const payment = Math.min(amount, card.balance);
+  const newBalance = Math.round((card.balance - payment) * 100) / 100;
+  // If paying off at least the statement balance, clear it (no interest next cycle)
+  const newStatementBalance = newBalance <= 0 ? 0 : 
+    (payment >= card.statementBalance ? 0 : Math.round((card.statementBalance - payment) * 100) / 100);
   return {
     ...card,
-    balance: Math.round((card.balance - payment) * 100) / 100,
+    balance: newBalance,
+    statementBalance: newStatementBalance,
     paymentHistory: [
-      ...card.paymentHistory.slice(-24), // keep last 24 payments
+      ...card.paymentHistory.slice(-24),
       { week, amount: payment, onTime: true },
     ],
   };
 }
 
-export function applyCardInterest(card: CreditCard): CreditCard {
-  if (card.balance <= 0) return card;
+export function applyCardInterest(card: CreditCard, currentWeek: number): CreditCard {
+  // Interest only accrues on the statement balance (balance at last statement date)
+  // If the user paid in full before the due date, no interest
+  if (card.statementBalance <= 0) {
+    // No prior statement balance unpaid — generate new statement
+    return {
+      ...card,
+      statementBalance: card.balance,
+      lastStatementWeek: currentWeek,
+    };
+  }
+
+  // Statement balance was carried — charge interest on it
   const monthlyRate = card.apr / 12;
-  const interest = Math.round(card.balance * monthlyRate * 100) / 100;
+  const interest = Math.round(card.statementBalance * monthlyRate * 100) / 100;
+
   return {
     ...card,
     balance: Math.round((card.balance + interest) * 100) / 100,
+    statementBalance: card.balance + interest, // new statement = current balance + interest
+    lastStatementWeek: currentWeek,
   };
 }
 

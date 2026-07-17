@@ -44,17 +44,23 @@ export type InvestmentType = 'stock' | 'bond' | 'index_fund';
 
 export type RetirementAccountType = 'roth_ira' | 'traditional_ira' | '401k';
 
+export type PayType = 'hourly' | 'salary';
+
 export interface Job {
   id: string;
   title: string;
   level: JobLevel;
   carNeeded: boolean;
+  payType: PayType;
   perHourWage: number;
   maxTips: number;
   educationCost: number;
   skillsGained: Partial<Record<SkillType, number>>;
   hoursPerWeek: number;
   description: string;
+  promotesFrom?: string;
+  weeksRequired?: number;
+  offers401k?: boolean; // true for all salary jobs + select hourly (e.g. municipal)
 }
 
 export interface BankAccount {
@@ -92,6 +98,8 @@ export interface CreditCard {
   name: string;
   limit: number;
   balance: number;
+  statementBalance: number; // balance at last statement date — interest accrues on this
+  lastStatementWeek: number; // week when last statement was generated
   apr: number;
   minimumPayment: number;
   paymentHistory: CreditPayment[];
@@ -125,26 +133,46 @@ export interface TaxReturn {
   itemizedDeductions: number;
   taxableIncome: number;
   taxOwed: number;
-  refundOrOwed: number;
+  underpaymentPenalty: number;
+  refundOrOwed: number; // positive = refund, negative = owe (includes penalty)
+}
+
+export type VehicleType = 'none' | 'transit' | 'buy' | 'lease';
+
+export interface VehicleOption {
+  id: string;
+  name: string;
+  type: VehicleType;
+  price: number;
+  monthlyPayment: number;
+  insurance: number;
+  registration: number;
+  mpg: number;
+  reliability: number;
+  description: string;
+  unlocksCarJobs: boolean;
 }
 
 export interface Vehicle {
   owned: boolean;
-  renting: boolean;
-  vehicleId: string | null;   // id from vehicles.json
+  leased: boolean;
+  transitPass: boolean;
+  vehicleId: string | null;
   name: string;
+  type: VehicleType;
   value: number;
   mpg: number;
   reliability: number;
   insuranceCostPerYear: number;
   registrationCostPerYear: number;
-  rentalCostPerWeek: number;  // 0 if owned
+  monthlyPayment: number; // lease or transit pass payment
   hasLicense: boolean;
   licenseCost: number;
+  purchaseWeek: number;
 }
 
 export interface Housing {
-  type: 'parents_basement' | 'apartment' | 'house';
+  type: 'parents_basement' | 'apartment' | 'nice_apartment' | 'house' | 'nice_house';
   rent: number;
   utilities: number;
   mortgage?: {
@@ -155,14 +183,21 @@ export interface Housing {
   };
 }
 
+export interface InvestmentLot {
+  shares: number;
+  purchasePrice: number;
+  purchaseWeek: number;
+}
+
 export interface Investment {
   id: string;
   type: InvestmentType;
   name: string;
   shares: number;
-  purchasePrice: number;
+  purchasePrice: number; // average cost basis
   currentPrice: number;
   purchaseWeek: number;
+  lots: InvestmentLot[];
 }
 
 export interface RetirementAccount {
@@ -219,6 +254,29 @@ export interface PlayerSummary {
   stage: GameStage;
 }
 
+export type DegreeType = 'high_school' | 'associates' | 'bachelors' | 'masters';
+
+export interface Certificate {
+  name: string;
+  weekEarned: number;
+  cost: number;
+  jobId: string; // the job that required it
+}
+
+export interface Education {
+  highestDegree: DegreeType;
+  certificates: Certificate[];
+}
+
+export interface Hobby {
+  id: string;
+  name: string;
+  weeklyCost: number;
+  skillsGained: Partial<Record<SkillType, number>>;
+  description: string;
+  icon: string;
+}
+
 export interface GameState {
   // Time
   currentWeek: number;
@@ -231,13 +289,30 @@ export interface GameState {
   // Player
   playerName: string;
   stage: GameStage;
-  currentJob: Job | null;
+  currentJob: Job | null;       // primary job (salary or first hourly)
+  secondaryJobs: Job[];         // additional hourly jobs
+  jobNotices: Record<string, number>; // job id -> week when notice expires (last day)
+  totalWeeklyHours: number;     // computed: sum of all job hours
+  exhaustion: number;           // 0-100, increases when >75h/week, slowly recovers
+  hasHealthInsurance: boolean;  // true if any single hourly job is 40+ hours or any salary job
+  has401kAccess: boolean;       // true if current job(s) offer 401k
   previousJobs: string[];
+
+  // Hobbies
+  activeHobbies: Hobby[];
 
   // Finances
   checking: BankAccount;
   savings: BankAccount;
   totalSaved: number;
+  netWorthHistory: number[];         // net worth at each week
+  investmentHistory: {               // tracked each week
+    total: number;
+    brokerage: number;
+    roth_ira: number;
+    traditional_ira: number;
+    fourOhOneK: number;
+  }[];
 
   // Tax
   w4: W4Form;
@@ -249,6 +324,7 @@ export interface GameState {
   creditCards: CreditCard[];
   creditScore: CreditScore | null;
   creditHistory: number[]; // weekly scores
+  expenseCardAssignments: Record<string, string | null>; // expense category -> card id (null = checking)
 
   // Assets
   vehicle: Vehicle;
@@ -262,6 +338,8 @@ export interface GameState {
   jobHistory: { job: Job; startWeek: number; endWeek: number }[];
 
   // Life
+  age: number; // starts at 18
+  education: Education;
   isMarried: boolean;
   children: number;
   lifeEvents: LifeEvent[];

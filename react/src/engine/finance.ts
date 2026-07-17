@@ -68,8 +68,10 @@ export function calculateWeeklyExpenses(state: GameState): { total: number; brea
   breakdown['Food'] = WEEKLY_EXPENSES.food;
 
   // Transport
-  if (state.vehicle.owned) {
+  if (state.vehicle.owned || state.vehicle.leased) {
     breakdown['Gas & Transport'] = WEEKLY_EXPENSES.transport_car;
+  } else if (state.vehicle.transitPass) {
+    breakdown['Transit Pass'] = Math.round(state.vehicle.monthlyPayment / 4.33);
   } else {
     breakdown['Transport'] = WEEKLY_EXPENSES.transport_no_car;
   }
@@ -81,22 +83,29 @@ export function calculateWeeklyExpenses(state: GameState): { total: number; brea
   breakdown['Phone'] = WEEKLY_EXPENSES.phone;
 
   // Housing (monthly costs converted to weekly)
-  if (state.housing.type === 'apartment') {
-    breakdown['Rent'] = Math.round(HOUSING_COSTS.apartment.rent / 4.33);
-    breakdown['Utilities'] = Math.round(HOUSING_COSTS.apartment.utilities / 4.33);
-  } else if (state.housing.type === 'house') {
+  if (state.housing.type === 'apartment' || state.housing.type === 'nice_apartment') {
+    breakdown['Rent'] = Math.round(state.housing.rent / 4.33);
+    breakdown['Utilities'] = Math.round(state.housing.utilities / 4.33);
+  } else if (state.housing.type === 'house' || state.housing.type === 'nice_house') {
     if (state.housing.mortgage) {
       breakdown['Mortgage'] = Math.round(state.housing.mortgage.monthlyPayment / 4.33);
     }
-    breakdown['Utilities'] = Math.round(HOUSING_COSTS.house.utilities / 4.33);
-    breakdown['Home Insurance'] = Math.round(HOUSING_COSTS.house.insurance / 52);
-    breakdown['Property Tax'] = Math.round((HOUSING_COSTS.house.homePrice * HOUSING_COSTS.house.propertyTaxRate) / 52);
+    breakdown['Utilities'] = Math.round(state.housing.utilities / 4.33);
+    const homePrice = state.housing.type === 'nice_house' ? HOUSING_COSTS.niceHouse.homePrice : HOUSING_COSTS.house.homePrice;
+    const insuranceAmt = state.housing.type === 'nice_house' ? HOUSING_COSTS.niceHouse.insurance : HOUSING_COSTS.house.insurance;
+    breakdown['Home Insurance'] = Math.round(insuranceAmt / 52);
+    breakdown['Property Tax'] = Math.round((homePrice * HOUSING_COSTS.house.propertyTaxRate) / 52);
   }
 
   // Vehicle costs (annual to weekly)
-  if (state.vehicle.owned) {
-    breakdown['Auto Insurance'] = Math.round(VEHICLE_COSTS.insurance / 52);
-    breakdown['Registration'] = Math.round(VEHICLE_COSTS.registration / 52);
+  if (state.vehicle.owned || state.vehicle.leased) {
+    breakdown['Auto Insurance'] = Math.round(state.vehicle.insuranceCostPerYear / 52);
+    if (state.vehicle.registrationCostPerYear > 0) {
+      breakdown['Registration'] = Math.round(state.vehicle.registrationCostPerYear / 52);
+    }
+    if (state.vehicle.monthlyPayment > 0) {
+      breakdown['Lease Payment'] = Math.round(state.vehicle.monthlyPayment / 4.33);
+    }
   }
 
   const total = Object.values(breakdown).reduce((sum, v) => sum + v, 0);

@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { formatCurrency, getNetWorth, calculateWeeklyExpenses, calculateWeeklyIncome } from '../engine/finance';
 import { getStageDescription, getStageMilestone, getStageNumber } from '../engine/progression';
 import { THRESHOLDS } from '../engine/constants';
+import { ResumeModal } from './ResumeModal';
+import { LineChart } from './LineChart';
+import { DegreeType } from '../engine/types';
 
 const STAGE_ORDER = [
   'GETTING_STARTED', 'INDEPENDENCE', 'CREDIT_BUILDING',
@@ -16,6 +19,7 @@ export function Dashboard() {
   const expenses = calculateWeeklyExpenses(state);
   const stageNum = getStageNumber(state.stage);
   const totalCash = state.checking.balance + state.savings.balance;
+  const [showResume, setShowResume] = useState(false);
 
   // Calculate progress to next milestone
   const getProgress = (): number => {
@@ -55,6 +59,41 @@ export function Dashboard() {
         </div>
       </div>
 
+      {/* Player Info */}
+      <div className="card" style={{ marginBottom: '20px' }}>
+        <div className="card-header">
+          <span className="card-title">{state.playerName}</span>
+          <button className="btn btn-outline" onClick={() => setShowResume(true)}>
+            📄 Resume
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Age</span>
+            <div style={{ fontSize: '18px', fontWeight: 700 }}>{state.age}</div>
+          </div>
+          <div>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Education</span>
+            <div style={{ fontSize: '14px', fontWeight: 600 }}>{getDegreeLabel(state.education.highestDegree)}</div>
+          </div>
+          {state.education.certificates.length > 0 && (
+            <div>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Certificates</span>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
+                {state.education.certificates.map((cert, i) => (
+                  <span key={i} style={{
+                    fontSize: '11px', padding: '2px 8px', borderRadius: '10px',
+                    background: 'rgba(139,92,246,0.1)', color: 'var(--accent-purple)',
+                  }}>
+                    {cert.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Stats Grid */}
       <div className="dashboard-grid">
         <div className="stat-card">
@@ -84,6 +123,13 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Net Worth Chart */}
+      {state.netWorthHistory.length > 1 && (
+        <div className="card" style={{ marginBottom: '20px' }}>
+          <LineChart data={state.netWorthHistory} label="Net Worth Over Time" color="#10b981" />
+        </div>
+      )}
 
       {/* Weekly Budget */}
       <div className="card">
@@ -133,6 +179,18 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+
+      {showResume && <ResumeModal onClose={() => setShowResume(false)} />}
     </div>
   );
+}
+
+function getDegreeLabel(degree: DegreeType): string {
+  const labels: Record<DegreeType, string> = {
+    high_school: 'High School Diploma',
+    associates: "Associate's Degree",
+    bachelors: "Bachelor's Degree",
+    masters: "Master's Degree",
+  };
+  return labels[degree];
 }

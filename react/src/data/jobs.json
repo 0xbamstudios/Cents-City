@@ -14,7 +14,8 @@
       "time_management": 2,
       "responsibility": 1,
       "teamwork": 1
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "grocery_bagger",
@@ -30,7 +31,8 @@
       "customer_service": 2,
       "physical_endurance": 2,
       "teamwork": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "car_wash_attendant",
@@ -46,7 +48,8 @@
       "physical_endurance": 3,
       "time_management": 1,
       "customer_service": 1
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "landscaper",
@@ -62,7 +65,8 @@
       "physical_endurance": 4,
       "time_management": 2,
       "responsibility": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "fast_food_crew",
@@ -78,7 +82,8 @@
       "time_management": 3,
       "teamwork": 3,
       "customer_service": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "dog_walker",
@@ -95,7 +100,8 @@
       "physical_endurance": 2,
       "time_management": 2,
       "customer_service": 1
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "gas_station_attendant",
@@ -111,7 +117,8 @@
       "customer_service": 3,
       "responsibility": 2,
       "communication": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "warehouse_picker",
@@ -127,7 +134,8 @@
       "physical_endurance": 4,
       "organization": 3,
       "time_management": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "barista",
@@ -144,7 +152,8 @@
       "communication": 3,
       "time_management": 2,
       "creativity": 1
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "movie_theater_staff",
@@ -161,7 +170,8 @@
       "teamwork": 2,
       "organization": 2,
       "communication": 1
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "pizza_delivery",
@@ -177,7 +187,8 @@
       "time_management": 3,
       "customer_service": 2,
       "responsibility": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "rideshare_driver",
@@ -194,7 +205,8 @@
       "communication": 3,
       "time_management": 2,
       "negotiation": 1
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "lifeguard",
@@ -204,14 +216,16 @@
     "perHourWage": 25,
     "maxTips": 0,
     "educationCost": 300,
-    "hoursPerWeek": 35,
-    "description": "Keep swimmers safe at the community pool. Requires CPR certification ($300).",
+    "hoursPerWeek": 40,
+    "description": "Keep swimmers safe at the community pool. Municipal job with 401k match and health insurance. Requires CPR certification ($300).",
     "skillsGained": {
       "responsibility": 4,
       "physical_endurance": 3,
       "leadership": 2,
       "problem_solving": 2
-    }
+    },
+    "payType": "hourly",
+    "offers401k": true
   },
   {
     "id": "mover",
@@ -228,7 +242,8 @@
       "teamwork": 3,
       "problem_solving": 2,
       "customer_service": 1
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "retail_associate",
@@ -245,7 +260,8 @@
       "communication": 3,
       "sales": 2,
       "organization": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "call_center_rep",
@@ -262,7 +278,8 @@
       "problem_solving": 3,
       "customer_service": 3,
       "negotiation": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "gym_trainer",
@@ -280,7 +297,8 @@
       "physical_endurance": 2,
       "sales": 2,
       "customer_service": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "freelance_designer",
@@ -297,7 +315,8 @@
       "communication": 2,
       "problem_solving": 2,
       "technical": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "waiter",
@@ -315,7 +334,8 @@
       "time_management": 3,
       "sales": 2,
       "negotiation": 1
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "bartender",
@@ -333,7 +353,8 @@
       "creativity": 2,
       "sales": 3,
       "negotiation": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "bank_teller",
@@ -351,7 +372,8 @@
       "communication": 3,
       "responsibility": 2,
       "organization": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "real_estate_assistant",
@@ -368,7 +390,8 @@
       "communication": 3,
       "sales": 3,
       "negotiation": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "it_help_desk",
@@ -385,7 +408,8 @@
       "problem_solving": 4,
       "communication": 2,
       "customer_service": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "shift_supervisor",
@@ -403,7 +427,8 @@
       "communication": 3,
       "problem_solving": 3,
       "teamwork": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "sales_rep",
@@ -420,7 +445,8 @@
       "negotiation": 4,
       "communication": 4,
       "customer_service": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "bookkeeper",
@@ -437,7 +463,8 @@
       "organization": 4,
       "data_analysis": 3,
       "responsibility": 3
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "web_developer_jr",
@@ -454,7 +481,8 @@
       "problem_solving": 4,
       "creativity": 3,
       "teamwork": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "insurance_agent",
@@ -472,7 +500,8 @@
       "negotiation": 3,
       "communication": 3,
       "customer_service": 2
-    }
+    },
+    "payType": "hourly"
   },
   {
     "id": "credit_analyst",
@@ -489,7 +518,8 @@
       "data_analysis": 4,
       "problem_solving": 4,
       "communication": 3
-    }
+    },
+    "payType": "salary"
   },
   {
     "id": "financial_advisor",
@@ -507,7 +537,8 @@
       "leadership": 4,
       "negotiation": 3,
       "sales": 3
-    }
+    },
+    "payType": "salary"
   },
   {
     "id": "software_engineer",
@@ -524,7 +555,8 @@
       "problem_solving": 5,
       "teamwork": 3,
       "communication": 2
-    }
+    },
+    "payType": "salary"
   },
   {
     "id": "marketing_manager",
@@ -542,7 +574,8 @@
       "communication": 4,
       "data_analysis": 3,
       "sales": 3
-    }
+    },
+    "payType": "salary"
   },
   {
     "id": "project_manager",
@@ -560,6 +593,272 @@
       "communication": 4,
       "negotiation": 3,
       "teamwork": 3
-    }
+    },
+    "payType": "salary"
+  },
+  {
+    "id": "fast_food_shift_mgr",
+    "title": "Fast Food Shift Manager",
+    "level": "level3",
+    "carNeeded": false,
+    "perHourWage": 22,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 38,
+    "description": "Promoted from crew \u2014 manage shifts, train new hires, handle cash reconciliation.",
+    "promotesFrom": "fast_food_crew",
+    "weeksRequired": 12,
+    "skillsGained": {
+      "leadership": 3,
+      "time_management": 3,
+      "responsibility": 3,
+      "teamwork": 2
+    },
+    "payType": "hourly"
+  },
+  {
+    "id": "fast_food_store_mgr",
+    "title": "Fast Food Store Manager",
+    "level": "level5",
+    "carNeeded": true,
+    "perHourWage": 32,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 45,
+    "description": "Run the entire restaurant. P&L responsibility, hiring, scheduling, and inventory.",
+    "promotesFrom": "fast_food_shift_mgr",
+    "weeksRequired": 16,
+    "skillsGained": {
+      "leadership": 5,
+      "financial_acumen": 3,
+      "organization": 4,
+      "problem_solving": 3
+    },
+    "payType": "salary"
+  },
+  {
+    "id": "retail_shift_lead",
+    "title": "Retail Shift Lead",
+    "level": "level5",
+    "carNeeded": false,
+    "perHourWage": 29,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 40,
+    "description": "Promoted from associate \u2014 lead the floor team, handle escalations, open/close store.",
+    "promotesFrom": "retail_associate",
+    "weeksRequired": 14,
+    "skillsGained": {
+      "leadership": 4,
+      "customer_service": 4,
+      "responsibility": 3,
+      "communication": 3
+    },
+    "payType": "hourly"
+  },
+  {
+    "id": "retail_store_mgr",
+    "title": "Retail Store Manager",
+    "level": "level6",
+    "carNeeded": true,
+    "perHourWage": 38,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 44,
+    "description": "Full store P&L. Manage 15+ employees, drive sales targets, and control shrink.",
+    "promotesFrom": "retail_shift_lead",
+    "weeksRequired": 16,
+    "skillsGained": {
+      "leadership": 5,
+      "financial_acumen": 4,
+      "sales": 4,
+      "organization": 3,
+      "negotiation": 2
+    },
+    "payType": "salary"
+  },
+  {
+    "id": "barista_lead",
+    "title": "Lead Barista",
+    "level": "level4",
+    "carNeeded": false,
+    "perHourWage": 22,
+    "maxTips": 8,
+    "educationCost": 0,
+    "hoursPerWeek": 35,
+    "description": "Promoted from barista \u2014 train new staff, manage inventory, and open the shop.",
+    "promotesFrom": "barista",
+    "weeksRequired": 10,
+    "skillsGained": {
+      "leadership": 3,
+      "customer_service": 4,
+      "organization": 3,
+      "communication": 3
+    },
+    "payType": "hourly"
+  },
+  {
+    "id": "cafe_manager",
+    "title": "Cafe Manager",
+    "level": "level6",
+    "carNeeded": false,
+    "perHourWage": 34,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 42,
+    "description": "Run a coffee shop. Hiring, scheduling, supply chain, and customer experience.",
+    "promotesFrom": "barista_lead",
+    "weeksRequired": 14,
+    "skillsGained": {
+      "leadership": 5,
+      "financial_acumen": 3,
+      "organization": 4,
+      "communication": 3,
+      "sales": 2
+    },
+    "payType": "salary"
+  },
+  {
+    "id": "warehouse_lead",
+    "title": "Warehouse Team Lead",
+    "level": "level4",
+    "carNeeded": false,
+    "perHourWage": 26,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 40,
+    "description": "Promoted from picker \u2014 coordinate a team, manage daily targets, handle exceptions.",
+    "promotesFrom": "warehouse_picker",
+    "weeksRequired": 12,
+    "skillsGained": {
+      "leadership": 3,
+      "organization": 4,
+      "teamwork": 3,
+      "responsibility": 3
+    },
+    "payType": "hourly"
+  },
+  {
+    "id": "warehouse_ops_mgr",
+    "title": "Warehouse Ops Manager",
+    "level": "level6",
+    "carNeeded": true,
+    "perHourWage": 37,
+    "maxTips": 0,
+    "educationCost": 500,
+    "hoursPerWeek": 44,
+    "description": "Oversee warehouse operations, 50+ staff, logistics, and safety compliance.",
+    "promotesFrom": "warehouse_lead",
+    "weeksRequired": 16,
+    "skillsGained": {
+      "leadership": 5,
+      "organization": 5,
+      "problem_solving": 4,
+      "financial_acumen": 2
+    },
+    "payType": "salary"
+  },
+  {
+    "id": "head_waiter",
+    "title": "Head Waiter / Maitre d'",
+    "level": "level6",
+    "carNeeded": false,
+    "perHourWage": 22,
+    "maxTips": 25,
+    "educationCost": 0,
+    "hoursPerWeek": 38,
+    "description": "Promoted from waiter \u2014 manage the dining room, train staff, handle VIP guests.",
+    "promotesFrom": "waiter",
+    "weeksRequired": 14,
+    "skillsGained": {
+      "leadership": 4,
+      "customer_service": 5,
+      "communication": 5,
+      "sales": 3,
+      "negotiation": 3
+    },
+    "payType": "hourly"
+  },
+  {
+    "id": "restaurant_manager",
+    "title": "Restaurant Manager",
+    "level": "level7",
+    "carNeeded": true,
+    "perHourWage": 46,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 48,
+    "description": "Full restaurant operations \u2014 staffing, P&L, health codes, vendor relations.",
+    "promotesFrom": "head_waiter",
+    "weeksRequired": 16,
+    "skillsGained": {
+      "leadership": 5,
+      "financial_acumen": 4,
+      "organization": 4,
+      "negotiation": 4,
+      "problem_solving": 3
+    },
+    "payType": "salary"
+  },
+  {
+    "id": "senior_developer",
+    "title": "Senior Developer",
+    "level": "level7",
+    "carNeeded": false,
+    "perHourWage": 62,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 40,
+    "description": "Promoted from junior \u2014 architect systems, mentor developers, lead tech decisions.",
+    "promotesFrom": "web_developer_jr",
+    "weeksRequired": 20,
+    "skillsGained": {
+      "technical": 5,
+      "leadership": 4,
+      "problem_solving": 5,
+      "communication": 3,
+      "teamwork": 3
+    },
+    "payType": "salary"
+  },
+  {
+    "id": "call_center_supervisor",
+    "title": "Call Center Supervisor",
+    "level": "level5",
+    "carNeeded": false,
+    "perHourWage": 30,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 40,
+    "description": "Promoted from rep \u2014 coach agents, monitor quality, handle escalated calls.",
+    "promotesFrom": "call_center_rep",
+    "weeksRequired": 12,
+    "skillsGained": {
+      "leadership": 4,
+      "communication": 4,
+      "problem_solving": 3,
+      "negotiation": 3
+    },
+    "payType": "hourly"
+  },
+  {
+    "id": "sales_manager",
+    "title": "Sales Manager",
+    "level": "level7",
+    "carNeeded": true,
+    "perHourWage": 48,
+    "maxTips": 10,
+    "educationCost": 0,
+    "hoursPerWeek": 44,
+    "description": "Promoted from rep \u2014 manage a sales team, set quotas, close enterprise deals.",
+    "promotesFrom": "sales_rep",
+    "weeksRequired": 18,
+    "skillsGained": {
+      "leadership": 5,
+      "sales": 5,
+      "negotiation": 5,
+      "communication": 4
+    },
+    "payType": "salary"
   }
 ]

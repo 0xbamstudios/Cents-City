@@ -11,6 +11,8 @@ import { CreditPanel } from './components/CreditPanel';
 import { TaxesPanel } from './components/TaxesPanel';
 import { HousingPanel } from './components/HousingPanel';
 import { InvestingPanel } from './components/InvestingPanel';
+import { SettingsPanel } from './components/SettingsPanel';
+import { UtilitiesPanel } from './components/UtilitiesPanel';
 import { Notifications } from './components/Notifications';
 
 export default function App() {
@@ -28,7 +30,9 @@ export default function App() {
       case 'credit': return <CreditPanel />;
       case 'taxes': return <TaxesPanel />;
       case 'housing': return <HousingPanel />;
+      case 'utilities': return <UtilitiesPanel />;
       case 'investing': return <InvestingPanel />;
+      case 'settings': return <SettingsPanel />;
       default: return <Dashboard />;
     }
   };

@@ -3,7 +3,7 @@ import { useGameStore } from '../store/gameStore';
 import { getSkillLabel } from '../engine/skills';
 import { SkillType } from '../engine/types';
 
-type Panel = 'dashboard' | 'jobs' | 'banking' | 'credit' | 'housing' | 'taxes' | 'investing';
+type Panel = 'dashboard' | 'jobs' | 'banking' | 'credit' | 'housing' | 'utilities' | 'taxes' | 'investing' | 'settings';
 
 interface NavItem {
   id: Panel;
@@ -17,9 +17,11 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'jobs', icon: '💼', label: 'Jobs', unlocksAtStage: 1 },
   { id: 'banking', icon: '🏦', label: 'Banking', unlocksAtStage: 1 },
   { id: 'credit', icon: '💳', label: 'Credit', unlocksAtStage: 3 },
-  { id: 'housing', icon: '🏠', label: 'Housing', unlocksAtStage: 2 },
+  { id: 'housing', icon: '🏠', label: 'Housing & Transport', unlocksAtStage: 2 },
+  { id: 'utilities', icon: '💡', label: 'Utilities & Expenses', unlocksAtStage: 2 },
   { id: 'taxes', icon: '📋', label: 'Taxes', unlocksAtStage: 1 },
   { id: 'investing', icon: '📈', label: 'Investing', unlocksAtStage: 6 },
+  { id: 'settings', icon: '⚙️', label: 'Settings', unlocksAtStage: 1 },
 ];
 
 const STAGE_ORDER = [
@@ -28,8 +30,15 @@ const STAGE_ORDER = [
 ];
 
 export function Sidebar() {
-  const { activePanel, setActivePanel, stage, skills } = useGameStore();
+  const { activePanel, setActivePanel, stage, skills, currentWeek, age } = useGameStore();
   const currentStageNum = STAGE_ORDER.indexOf(stage) + 1;
+
+  // Compute game date from week number (game starts Jan 6, 2025)
+  const getGameDate = (): string => {
+    const startDate = new Date(2025, 0, 6); // Jan 6, 2025
+    const gameDate = new Date(startDate.getTime() + currentWeek * 7 * 24 * 60 * 60 * 1000);
+    return gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
 
   const topSkills = Object.entries(skills.skills)
     .filter(([, v]) => v > 0)
@@ -42,6 +51,9 @@ export function Sidebar() {
     <div className="sidebar">
       <div className="sidebar-logo">
         <h1><span>Cents</span> City</h1>
+        <div style={{ fontSize: '12px', color: 'var(--text-sidebar-dim)', marginTop: '4px' }}>
+          📅 {getGameDate()} • Age {age}
+        </div>
       </div>
 
       {NAV_ITEMS.map((item) => {

@@ -88,18 +88,33 @@ export function calculateAnnualTax(state: GameState): TaxReturn {
   }
 
   taxOwed = Math.round(taxOwed * 100) / 100;
-  const refundOrOwed = Math.round((state.yearToDateWithholding - taxOwed) * 100) / 100;
+  const refundBeforePenalty = state.yearToDateWithholding - taxOwed;
+
+  // Underpayment penalty: IRS charges ~4% annualized penalty if you owe > $1000
+  // and withheld less than 90% of tax owed
+  let underpaymentPenalty = 0;
+  if (refundBeforePenalty < -1000) {
+    const withheldPercent = taxOwed > 0 ? state.yearToDateWithholding / taxOwed : 1;
+    if (withheldPercent < 0.90) {
+      // Penalty is approximately 4% of the underpayment amount
+      const underpaymentAmount = Math.abs(refundBeforePenalty);
+      underpaymentPenalty = Math.round(underpaymentAmount * 0.04 * 100) / 100;
+    }
+  }
+
+  const refundOrOwed = Math.round((refundBeforePenalty - underpaymentPenalty) * 100) / 100;
 
   return {
     year: Math.floor(state.currentWeek / 52) + 1,
     grossIncome,
     federalWithheld: state.yearToDateWithholding,
-    stateWithheld: 0, // simplified
+    stateWithheld: 0,
     standardDeduction: useItemized ? 0 : deduction,
     itemizedDeductions: useItemized ? itemizedDeductions : 0,
     taxableIncome,
     taxOwed,
-    refundOrOwed, // positive = refund, negative = owe
+    underpaymentPenalty,
+    refundOrOwed,
   };
 }
 

@@ -1,6 +1,11 @@
 // Game constants and configuration
 // Tunable thresholds and parameters
 
+// Feature flags
+export const FEATURE_FLAGS = {
+  DISABLE_SPEED_LOCK: true, // when true, all speed options available immediately
+} as const;
+
 export const THRESHOLDS = {
   INDEPENDENCE: 2000,       // threshold_one: move out of parents basement
   CREDIT_BUILDING: 5000,    // threshold_two: start building credit
@@ -63,16 +68,32 @@ export const INFLATION = {
 
 export const HOUSING_COSTS = {
   apartment: {
-    rent: 850,          // per month
-    utilities: 150,     // per month
+    rent: 850,
+    utilities: 150,
     securityDeposit: 1700,
   },
+  niceApartment: {
+    rent: 1400,
+    utilities: 180,
+    securityDeposit: 2800,
+  },
   house: {
-    downPayment: 0.20,  // 20% of home price
+    downPayment: 0.20,
     homePrice: 250000,
     propertyTaxRate: 0.012,
-    insurance: 1200,    // per year
-    utilities: 250,     // per month
+    insurance: 1200,
+    utilities: 250,
+    mortgageRate: 0.065, // 6.5% 30-year fixed
+    mortgageTermYears: 30,
+  },
+  niceHouse: {
+    downPayment: 0.20,
+    homePrice: 450000,
+    propertyTaxRate: 0.012,
+    insurance: 2000,
+    utilities: 350,
+    mortgageRate: 0.065,
+    mortgageTermYears: 30,
   },
 } as const;
 
@@ -110,7 +131,7 @@ export const CREDIT_CARD_OPTIONS = [
   },
 ] as const;
 
-export const GAME_WEEK_MS = 5000; // 5 seconds per game week at 1x speed (slowed down)
+export const GAME_WEEK_MS = 8000; // 8 seconds per game week at 1x speed
 
 export const WEEKLY_EXPENSES = {
   food: 75,
@@ -121,6 +142,14 @@ export const WEEKLY_EXPENSES = {
 } as const;
 
 export const SKILL_GAIN_PER_WEEK = 2; // base skill points per week worked
+
+export const WORK_LIMITS = {
+  maxHoursPerWeek: 90,
+  exhaustionThreshold: 75, // hours above this cause exhaustion
+  exhaustionGainPerWeek: 8, // exhaustion points gained per week over threshold
+  exhaustionRecoveryPerWeek: 3, // exhaustion recovery per week when below threshold
+  maxExhaustion: 100,
+} as const;
 
 export const STAGES_ORDER = [
   'GETTING_STARTED',
