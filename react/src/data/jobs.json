@@ -1,0 +1,565 @@
+[
+  {
+    "id": "dishwasher",
+    "title": "Dishwasher",
+    "level": "level0",
+    "carNeeded": false,
+    "perHourWage": 15,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 30,
+    "description": "Wash dishes at a local restaurant. Builds physical endurance and time management.",
+    "skillsGained": {
+      "physical_endurance": 3,
+      "time_management": 2,
+      "responsibility": 1,
+      "teamwork": 1
+    }
+  },
+  {
+    "id": "grocery_bagger",
+    "title": "Grocery Bagger",
+    "level": "level0",
+    "carNeeded": false,
+    "perHourWage": 14,
+    "maxTips": 2,
+    "educationCost": 0,
+    "hoursPerWeek": 25,
+    "description": "Bag groceries and help customers to their cars. A friendly starter job.",
+    "skillsGained": {
+      "customer_service": 2,
+      "physical_endurance": 2,
+      "teamwork": 2
+    }
+  },
+  {
+    "id": "car_wash_attendant",
+    "title": "Car Wash Attendant",
+    "level": "level0",
+    "carNeeded": false,
+    "perHourWage": 15,
+    "maxTips": 3,
+    "educationCost": 0,
+    "hoursPerWeek": 28,
+    "description": "Scrub, rinse, and detail vehicles. Physical work with occasional tips.",
+    "skillsGained": {
+      "physical_endurance": 3,
+      "time_management": 1,
+      "customer_service": 1
+    }
+  },
+  {
+    "id": "landscaper",
+    "title": "Landscaper",
+    "level": "level1",
+    "carNeeded": false,
+    "perHourWage": 17,
+    "maxTips": 5,
+    "educationCost": 0,
+    "hoursPerWeek": 35,
+    "description": "Mow lawns, trim hedges, and maintain outdoor spaces. Physically demanding but rewarding.",
+    "skillsGained": {
+      "physical_endurance": 4,
+      "time_management": 2,
+      "responsibility": 2
+    }
+  },
+  {
+    "id": "fast_food_crew",
+    "title": "Fast Food Crew",
+    "level": "level1",
+    "carNeeded": false,
+    "perHourWage": 16,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 32,
+    "description": "Work the grill, register, or drive-thru at a fast food chain. Fast-paced environment.",
+    "skillsGained": {
+      "time_management": 3,
+      "teamwork": 3,
+      "customer_service": 2
+    }
+  },
+  {
+    "id": "dog_walker",
+    "title": "Dog Walker",
+    "level": "level1",
+    "carNeeded": false,
+    "perHourWage": 18,
+    "maxTips": 4,
+    "educationCost": 0,
+    "hoursPerWeek": 20,
+    "description": "Walk dogs around Cents City neighborhoods. Flexible schedule but fewer hours.",
+    "skillsGained": {
+      "responsibility": 3,
+      "physical_endurance": 2,
+      "time_management": 2,
+      "customer_service": 1
+    }
+  },
+  {
+    "id": "gas_station_attendant",
+    "title": "Gas Station Attendant",
+    "level": "level2",
+    "carNeeded": false,
+    "perHourWage": 19,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 35,
+    "description": "Run the register, stock shelves, and help customers at a gas station.",
+    "skillsGained": {
+      "customer_service": 3,
+      "responsibility": 2,
+      "communication": 2
+    }
+  },
+  {
+    "id": "warehouse_picker",
+    "title": "Warehouse Picker",
+    "level": "level2",
+    "carNeeded": false,
+    "perHourWage": 20,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 40,
+    "description": "Pick and pack orders in a distribution warehouse. Demanding but steady hours.",
+    "skillsGained": {
+      "physical_endurance": 4,
+      "organization": 3,
+      "time_management": 2
+    }
+  },
+  {
+    "id": "barista",
+    "title": "Barista",
+    "level": "level2",
+    "carNeeded": false,
+    "perHourWage": 17,
+    "maxTips": 6,
+    "educationCost": 0,
+    "hoursPerWeek": 30,
+    "description": "Craft coffee drinks and serve customers. Great for building people skills.",
+    "skillsGained": {
+      "customer_service": 4,
+      "communication": 3,
+      "time_management": 2,
+      "creativity": 1
+    }
+  },
+  {
+    "id": "movie_theater_staff",
+    "title": "Movie Theater Staff",
+    "level": "level2",
+    "carNeeded": false,
+    "perHourWage": 16,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 28,
+    "description": "Sell tickets, run concessions, and keep theaters clean. Chill weeknight shifts.",
+    "skillsGained": {
+      "customer_service": 2,
+      "teamwork": 2,
+      "organization": 2,
+      "communication": 1
+    }
+  },
+  {
+    "id": "pizza_delivery",
+    "title": "Pizza Delivery",
+    "level": "level3",
+    "carNeeded": true,
+    "perHourWage": 22,
+    "maxTips": 10,
+    "educationCost": 0,
+    "hoursPerWeek": 30,
+    "description": "Deliver pizzas around Cents City. Good tips but requires a car.",
+    "skillsGained": {
+      "time_management": 3,
+      "customer_service": 2,
+      "responsibility": 2
+    }
+  },
+  {
+    "id": "rideshare_driver",
+    "title": "Rideshare Driver",
+    "level": "level3",
+    "carNeeded": true,
+    "perHourWage": 24,
+    "maxTips": 8,
+    "educationCost": 0,
+    "hoursPerWeek": 35,
+    "description": "Drive passengers around the city. Flexible hours, decent tips, and great conversations.",
+    "skillsGained": {
+      "customer_service": 3,
+      "communication": 3,
+      "time_management": 2,
+      "negotiation": 1
+    }
+  },
+  {
+    "id": "lifeguard",
+    "title": "Lifeguard",
+    "level": "level3",
+    "carNeeded": true,
+    "perHourWage": 25,
+    "maxTips": 0,
+    "educationCost": 300,
+    "hoursPerWeek": 35,
+    "description": "Keep swimmers safe at the community pool. Requires CPR certification ($300).",
+    "skillsGained": {
+      "responsibility": 4,
+      "physical_endurance": 3,
+      "leadership": 2,
+      "problem_solving": 2
+    }
+  },
+  {
+    "id": "mover",
+    "title": "Furniture Mover",
+    "level": "level3",
+    "carNeeded": true,
+    "perHourWage": 23,
+    "maxTips": 7,
+    "educationCost": 0,
+    "hoursPerWeek": 38,
+    "description": "Help people move apartments and houses. Hard physical labor but great tips.",
+    "skillsGained": {
+      "physical_endurance": 5,
+      "teamwork": 3,
+      "problem_solving": 2,
+      "customer_service": 1
+    }
+  },
+  {
+    "id": "retail_associate",
+    "title": "Retail Store Associate",
+    "level": "level4",
+    "carNeeded": false,
+    "perHourWage": 25,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 38,
+    "description": "Help customers, manage inventory, and work the sales floor.",
+    "skillsGained": {
+      "customer_service": 4,
+      "communication": 3,
+      "sales": 2,
+      "organization": 2
+    }
+  },
+  {
+    "id": "call_center_rep",
+    "title": "Call Center Rep",
+    "level": "level4",
+    "carNeeded": false,
+    "perHourWage": 23,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 40,
+    "description": "Handle customer inquiries and complaints over the phone. Builds patience and communication.",
+    "skillsGained": {
+      "communication": 4,
+      "problem_solving": 3,
+      "customer_service": 3,
+      "negotiation": 2
+    }
+  },
+  {
+    "id": "gym_trainer",
+    "title": "Personal Trainer",
+    "level": "level4",
+    "carNeeded": false,
+    "perHourWage": 27,
+    "maxTips": 5,
+    "educationCost": 400,
+    "hoursPerWeek": 30,
+    "description": "Train clients at the local gym. Requires fitness certification ($400).",
+    "skillsGained": {
+      "leadership": 3,
+      "communication": 3,
+      "physical_endurance": 2,
+      "sales": 2,
+      "customer_service": 2
+    }
+  },
+  {
+    "id": "freelance_designer",
+    "title": "Freelance Graphic Designer",
+    "level": "level4",
+    "carNeeded": false,
+    "perHourWage": 28,
+    "maxTips": 0,
+    "educationCost": 600,
+    "hoursPerWeek": 25,
+    "description": "Design logos, flyers, and social media graphics for local businesses.",
+    "skillsGained": {
+      "creativity": 5,
+      "communication": 2,
+      "problem_solving": 2,
+      "technical": 2
+    }
+  },
+  {
+    "id": "waiter",
+    "title": "Waiter",
+    "level": "level5",
+    "carNeeded": false,
+    "perHourWage": 15,
+    "maxTips": 18,
+    "educationCost": 0,
+    "hoursPerWeek": 35,
+    "description": "Serve tables at a sit-down restaurant. Lower base pay but great tips. Builds executive presence.",
+    "skillsGained": {
+      "customer_service": 5,
+      "communication": 4,
+      "time_management": 3,
+      "sales": 2,
+      "negotiation": 1
+    }
+  },
+  {
+    "id": "bartender",
+    "title": "Bartender",
+    "level": "level5",
+    "carNeeded": false,
+    "perHourWage": 16,
+    "maxTips": 20,
+    "educationCost": 200,
+    "hoursPerWeek": 32,
+    "description": "Mix drinks and entertain guests. Excellent tips and networking opportunities.",
+    "skillsGained": {
+      "customer_service": 4,
+      "communication": 4,
+      "creativity": 2,
+      "sales": 3,
+      "negotiation": 2
+    }
+  },
+  {
+    "id": "bank_teller",
+    "title": "Bank Teller",
+    "level": "level5",
+    "carNeeded": false,
+    "perHourWage": 28,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 40,
+    "description": "Handle customer transactions and accounts at Cents City Bank.",
+    "skillsGained": {
+      "financial_acumen": 4,
+      "customer_service": 3,
+      "communication": 3,
+      "responsibility": 2,
+      "organization": 2
+    }
+  },
+  {
+    "id": "real_estate_assistant",
+    "title": "Real Estate Assistant",
+    "level": "level5",
+    "carNeeded": true,
+    "perHourWage": 26,
+    "maxTips": 0,
+    "educationCost": 0,
+    "hoursPerWeek": 38,
+    "description": "Support a real estate agent with showings, paperwork, and client communication.",
+    "skillsGained": {
+      "organization": 4,
+      "communication": 3,
+      "sales": 3,
+      "negotiation": 2
+    }
+  },
+  {
+    "id": "it_help_desk",
+    "title": "IT Help Desk",
+    "level": "level5",
+    "carNeeded": false,
+    "perHourWage": 30,
+    "maxTips": 0,
+    "educationCost": 500,
+    "hoursPerWeek": 40,
+    "description": "Solve tech problems for office workers. Entry-level tech role.",
+    "skillsGained": {
+      "technical": 4,
+      "problem_solving": 4,
+      "communication": 2,
+      "customer_service": 2
+    }
+  },
+  {
+    "id": "shift_supervisor",
+    "title": "Shift Supervisor",
+    "level": "level6",
+    "carNeeded": true,
+    "perHourWage": 35,
+    "maxTips": 0,
+    "educationCost": 500,
+    "hoursPerWeek": 40,
+    "description": "Manage a team and oversee daily operations. Requires leadership training.",
+    "skillsGained": {
+      "leadership": 5,
+      "responsibility": 4,
+      "communication": 3,
+      "problem_solving": 3,
+      "teamwork": 2
+    }
+  },
+  {
+    "id": "sales_rep",
+    "title": "Sales Representative",
+    "level": "level6",
+    "carNeeded": true,
+    "perHourWage": 30,
+    "maxTips": 15,
+    "educationCost": 0,
+    "hoursPerWeek": 40,
+    "description": "Sell products B2B. Base + commission. Strong earning potential with people skills.",
+    "skillsGained": {
+      "sales": 5,
+      "negotiation": 4,
+      "communication": 4,
+      "customer_service": 2
+    }
+  },
+  {
+    "id": "bookkeeper",
+    "title": "Bookkeeper",
+    "level": "level6",
+    "carNeeded": false,
+    "perHourWage": 33,
+    "maxTips": 0,
+    "educationCost": 800,
+    "hoursPerWeek": 40,
+    "description": "Manage financial records for small businesses. Builds deep financial knowledge.",
+    "skillsGained": {
+      "financial_acumen": 5,
+      "organization": 4,
+      "data_analysis": 3,
+      "responsibility": 3
+    }
+  },
+  {
+    "id": "web_developer_jr",
+    "title": "Junior Web Developer",
+    "level": "level6",
+    "carNeeded": false,
+    "perHourWage": 38,
+    "maxTips": 0,
+    "educationCost": 1500,
+    "hoursPerWeek": 40,
+    "description": "Build websites and web apps. Requires a coding bootcamp ($1500).",
+    "skillsGained": {
+      "technical": 5,
+      "problem_solving": 4,
+      "creativity": 3,
+      "teamwork": 2
+    }
+  },
+  {
+    "id": "insurance_agent",
+    "title": "Insurance Agent",
+    "level": "level6",
+    "carNeeded": true,
+    "perHourWage": 32,
+    "maxTips": 8,
+    "educationCost": 600,
+    "hoursPerWeek": 40,
+    "description": "Sell and manage insurance policies. Licensed position with residual income potential.",
+    "skillsGained": {
+      "sales": 4,
+      "financial_acumen": 3,
+      "negotiation": 3,
+      "communication": 3,
+      "customer_service": 2
+    }
+  },
+  {
+    "id": "credit_analyst",
+    "title": "Credit Analyst",
+    "level": "level7",
+    "carNeeded": true,
+    "perHourWage": 45,
+    "maxTips": 0,
+    "educationCost": 2000,
+    "hoursPerWeek": 40,
+    "description": "Analyze credit applications and assess financial risk. Professional role with 401k benefits.",
+    "skillsGained": {
+      "financial_acumen": 5,
+      "data_analysis": 4,
+      "problem_solving": 4,
+      "communication": 3
+    }
+  },
+  {
+    "id": "financial_advisor",
+    "title": "Financial Advisor",
+    "level": "level7",
+    "carNeeded": true,
+    "perHourWage": 52,
+    "maxTips": 0,
+    "educationCost": 3000,
+    "hoursPerWeek": 40,
+    "description": "Help clients plan their financial futures. Top-tier role with full benefits package.",
+    "skillsGained": {
+      "financial_acumen": 5,
+      "communication": 5,
+      "leadership": 4,
+      "negotiation": 3,
+      "sales": 3
+    }
+  },
+  {
+    "id": "software_engineer",
+    "title": "Software Engineer",
+    "level": "level7",
+    "carNeeded": false,
+    "perHourWage": 55,
+    "maxTips": 0,
+    "educationCost": 3500,
+    "hoursPerWeek": 40,
+    "description": "Design and build software systems. Highest tech role. Requires advanced training.",
+    "skillsGained": {
+      "technical": 5,
+      "problem_solving": 5,
+      "teamwork": 3,
+      "communication": 2
+    }
+  },
+  {
+    "id": "marketing_manager",
+    "title": "Marketing Manager",
+    "level": "level7",
+    "carNeeded": true,
+    "perHourWage": 48,
+    "maxTips": 0,
+    "educationCost": 2500,
+    "hoursPerWeek": 42,
+    "description": "Lead marketing campaigns and brand strategy. Creative leadership role.",
+    "skillsGained": {
+      "creativity": 5,
+      "leadership": 4,
+      "communication": 4,
+      "data_analysis": 3,
+      "sales": 3
+    }
+  },
+  {
+    "id": "project_manager",
+    "title": "Project Manager",
+    "level": "level7",
+    "carNeeded": true,
+    "perHourWage": 50,
+    "maxTips": 0,
+    "educationCost": 2000,
+    "hoursPerWeek": 42,
+    "description": "Coordinate teams and deliver projects on time and budget. Strong organizational role.",
+    "skillsGained": {
+      "organization": 5,
+      "leadership": 5,
+      "communication": 4,
+      "negotiation": 3,
+      "teamwork": 3
+    }
+  }
+]

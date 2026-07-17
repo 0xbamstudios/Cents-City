@@ -1,0 +1,101 @@
+{
+  "purchaseOptions": [
+    {
+      "id": "beater",
+      "name": "1999 Honda Civic (Beater)",
+      "price": 3500,
+      "mpg": 28,
+      "reliability": 0.6,
+      "insurancePerYear": 600,
+      "description": "Runs... mostly. Cheap to buy but may need repairs."
+    },
+    {
+      "id": "used_sedan",
+      "name": "2018 Toyota Camry",
+      "price": 12000,
+      "mpg": 32,
+      "reliability": 0.85,
+      "insurancePerYear": 800,
+      "description": "Reliable used sedan. Good gas mileage, low maintenance."
+    },
+    {
+      "id": "used_suv",
+      "name": "2017 Ford Escape",
+      "price": 15000,
+      "mpg": 26,
+      "reliability": 0.8,
+      "insurancePerYear": 950,
+      "description": "Practical SUV. More room but drinks more gas."
+    },
+    {
+      "id": "new_sedan",
+      "name": "2025 Honda Accord",
+      "price": 28000,
+      "mpg": 36,
+      "reliability": 0.95,
+      "insurancePerYear": 1200,
+      "description": "Brand new with warranty. Great mileage, very reliable."
+    },
+    {
+      "id": "new_truck",
+      "name": "2025 Ford F-150",
+      "price": 42000,
+      "mpg": 22,
+      "reliability": 0.93,
+      "insurancePerYear": 1500,
+      "description": "Full-size truck. Expensive to fuel but great utility."
+    },
+    {
+      "id": "luxury",
+      "name": "2024 BMW 3 Series",
+      "price": 48000,
+      "mpg": 30,
+      "reliability": 0.88,
+      "insurancePerYear": 2000,
+      "description": "Luxury car. Premium insurance, premium image."
+    },
+    {
+      "id": "ev",
+      "name": "2025 Tesla Model 3",
+      "price": 38000,
+      "mpg": 130,
+      "reliability": 0.9,
+      "insurancePerYear": 1600,
+      "description": "Electric vehicle. Extremely cheap to 'fuel'. No gas needed."
+    }
+  ],
+  "rentalOptions": [
+    {
+      "id": "rental_economy",
+      "name": "Economy Rental (Weekly)",
+      "costPerWeek": 200,
+      "mpg": 30,
+      "insuranceIncluded": true,
+      "description": "Basic rental. Insurance included. No commitment."
+    },
+    {
+      "id": "rental_standard",
+      "name": "Standard Rental (Weekly)",
+      "costPerWeek": 325,
+      "mpg": 28,
+      "insuranceIncluded": true,
+      "description": "Comfortable mid-size. Insurance included."
+    },
+    {
+      "id": "rental_monthly_economy",
+      "name": "Economy Rental (Monthly)",
+      "costPerWeek": 150,
+      "mpg": 30,
+      "insuranceIncluded": true,
+      "description": "Monthly commitment = cheaper weekly rate. Insurance included."
+    },
+    {
+      "id": "rental_monthly_standard",
+      "name": "Standard Rental (Monthly)",
+      "costPerWeek": 250,
+      "mpg": 28,
+      "insuranceIncluded": true,
+      "description": "Monthly mid-size rental. Better rate than weekly."
+    }
+  ]
+}
