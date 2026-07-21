@@ -131,7 +131,7 @@ const initialState = (): Omit<GameStore, 'startGame' | 'setActivePanel' | 'setGa
   economy: { inflationMultiplier: 1.0, currentGasPrice: 3.50, weeklyFuelCost: 0 },
   multiplayer: { mode: 'single', playerId: '1', players: [], sharedJobMarket: [] },
   activePanel: 'dashboard',
-  sidebarCollapsed: false,
+  sidebarCollapsed: typeof window !== 'undefined' && window.innerWidth < 768,
   depositSplit: 20,
   gameLoopInterval: null,
   settings: { autoBillPay: true, autoTaxFiling: true, autoCreditCardPay: false },

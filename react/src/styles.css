@@ -1188,10 +1188,6 @@ body {
     grid-template-columns: 60px 1fr;
   }
 
-  .app-layout .sidebar:not(.sidebar-minimized) {
-    display: none;
-  }
-
   .header {
     padding: 0 12px;
   }
