@@ -93,16 +93,23 @@ export type TransactionCategory =
   | 'savings_transfer'
   | 'other';
 
+export interface CreditCardCharge {
+  week: number;
+  amount: number;
+  description: string;
+}
+
 export interface CreditCard {
   id: string;
   name: string;
   limit: number;
   balance: number;
-  statementBalance: number; // balance at last statement date — interest accrues on this
-  lastStatementWeek: number; // week when last statement was generated
+  statementBalance: number;
+  lastStatementWeek: number;
   apr: number;
   minimumPayment: number;
   paymentHistory: CreditPayment[];
+  recentCharges: CreditCardCharge[]; // last 20 charges for visibility
 }
 
 export interface CreditPayment {
@@ -305,7 +312,17 @@ export interface GameState {
   checking: BankAccount;
   savings: BankAccount;
   totalSaved: number;
-  netWorthHistory: number[];         // net worth at each week
+  netWorthHistory: {
+    week: number;
+    total: number;
+    pay: number;         // checking + savings
+    investments: number; // brokerage stocks
+    realEstate: number;  // home equity
+    car: number;         // vehicle value
+    fourOhOneK: number;
+    traditionalIra: number;
+    rothIra: number;
+  }[];
   investmentHistory: {               // tracked each week
     total: number;
     brokerage: number;

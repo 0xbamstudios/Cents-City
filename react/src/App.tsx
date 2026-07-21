@@ -16,7 +16,7 @@ import { UtilitiesPanel } from './components/UtilitiesPanel';
 import { Notifications } from './components/Notifications';
 
 export default function App() {
-  const { playerName, activePanel } = useGameStore();
+  const { playerName, activePanel, sidebarCollapsed } = useGameStore();
 
   if (!playerName) {
     return <SetupScreen />;
@@ -38,7 +38,7 @@ export default function App() {
   };
 
   return (
-    <div className="app-layout">
+    <div className={`app-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <Sidebar />
       <Header />
       <div className="main-content">

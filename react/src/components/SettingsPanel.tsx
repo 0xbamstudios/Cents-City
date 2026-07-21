@@ -31,6 +31,13 @@ export function SettingsPanel() {
             value={settings.autoTaxFiling}
             onChange={(v) => updateSettings({ autoTaxFiling: v })}
           />
+
+          <ToggleSetting
+            label="Auto-pay Credit Cards"
+            description="Automatically pay your full credit card balance from checking on each statement date. Avoids interest charges but requires sufficient checking balance. When off, you must pay manually from Utilities & Expenses or the Credit panel."
+            value={settings.autoCreditCardPay}
+            onChange={(v) => updateSettings({ autoCreditCardPay: v })}
+          />
         </div>
       </div>
 
@@ -49,6 +56,11 @@ export function SettingsPanel() {
             <strong>Automated Tax Filing</strong> — When enabled, your tax return is filed automatically
             at the end of each game year. When disabled, you control when to file, allowing you to
             review capital gains, deductions, and retirement contribution effects before submitting.
+          </p>
+          <p style={{ marginTop: '8px' }}>
+            <strong>Auto-pay Credit Cards</strong> — When enabled, your full credit card balance is
+            paid from checking on each statement date (every 4 weeks). This avoids interest charges
+            entirely but requires sufficient funds in checking. When disabled, you control payments manually.
           </p>
         </div>
       </div>

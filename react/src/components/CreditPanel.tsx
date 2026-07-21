@@ -113,6 +113,20 @@ export function CreditPanel() {
                   Close Account
                 </button>
               </div>
+              {/* Recent Charges */}
+              {card.recentCharges && card.recentCharges.length > 0 && (
+                <div style={{ marginTop: '10px', padding: '10px', background: 'var(--bg-primary)', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Recent Charges
+                  </div>
+                  {card.recentCharges.slice(-8).reverse().map((charge, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '3px 0', borderBottom: '1px solid var(--border)' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Wk {charge.week} — {charge.description}</span>
+                      <span style={{ fontWeight: 600 }}>{formatCurrency(charge.amount)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

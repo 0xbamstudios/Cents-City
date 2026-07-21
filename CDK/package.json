@@ -1,0 +1,22 @@
+{
+  "name": "cents-city-infra",
+  "version": "1.0.0",
+  "bin": {
+    "cents-city-infra": "bin/cents-city-infra.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "synth": "cdk synth"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.16",
+    "aws-cdk": "2.173.2",
+    "typescript": "5.4.2"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.173.2",
+    "constructs": "10.3.0"
+  }
+}

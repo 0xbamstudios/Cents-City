@@ -7,12 +7,18 @@ export function Header() {
   const { currentWeek, gameSpeed, isPaused, canSpeedUp, setGameSpeed, togglePause } = state;
   const netWorth = getNetWorth(state);
 
+  // Show the highest paying job title
+  const allJobs = [state.currentJob, ...state.secondaryJobs].filter(Boolean) as any[];
+  const highestPayJob = allJobs.length > 0
+    ? allJobs.reduce((best, j) => (j.perHourWage * j.hoursPerWeek > best.perHourWage * best.hoursPerWeek ? j : best))
+    : null;
+
   return (
     <div className="header">
       <div className="header-left">
         <span className="header-week">Week {currentWeek}</span>
         <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-          {state.playerName} • {state.currentJob ? state.currentJob.title : 'Unemployed'}
+          {state.playerName} • {highestPayJob ? highestPayJob.title : 'Unemployed'}
         </span>
       </div>
       <div className="header-right">

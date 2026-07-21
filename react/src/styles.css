@@ -1088,3 +1088,127 @@ body {
   background: rgba(245, 158, 11, 0.1);
   color: var(--accent-orange);
 }
+
+/* Sidebar collapse & minimize */
+.sidebar-collapse-btn {
+  background: none;
+  border: none;
+  color: var(--text-sidebar-dim);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: all 0.2s;
+}
+
+.sidebar-collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Minimized sidebar */
+.sidebar-minimized {
+  width: 60px !important;
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.sidebar-expand-btn {
+  background: none;
+  border: none;
+  color: var(--text-sidebar-dim);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  align-self: flex-end;
+  margin-right: 6px;
+}
+
+.sidebar-expand-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.sidebar-mini-logo {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.sidebar-mini-info {
+  font-size: 9px;
+  color: var(--text-sidebar-dim);
+  text-align: center;
+  margin-bottom: 10px;
+  line-height: 1.4;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+  width: 100%;
+}
+
+.nav-item-mini {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-item-mini:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-item-mini.active {
+  background: rgba(59, 130, 246, 0.15);
+  box-shadow: inset 2px 0 0 var(--accent-blue);
+}
+
+.nav-item-mini.locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* When sidebar is collapsed, adjust grid */
+.app-layout.sidebar-collapsed {
+  grid-template-columns: 60px 1fr;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .app-layout {
+    grid-template-columns: 60px 1fr;
+  }
+
+  .app-layout .sidebar:not(.sidebar-minimized) {
+    display: none;
+  }
+
+  .header {
+    padding: 0 12px;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .account-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .housing-options {
+    grid-template-columns: 1fr;
+  }
+}

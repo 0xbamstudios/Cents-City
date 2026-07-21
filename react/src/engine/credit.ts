@@ -34,6 +34,7 @@ export function openCreditCard(cardId: string, currentScore: number): CreditCard
     apr: cardDef.apr,
     minimumPayment: 25,
     paymentHistory: [],
+    recentCharges: [],
   };
 }
 
@@ -63,10 +64,12 @@ export function makeCardPayment(card: CreditCard, amount: number, week: number):
 }
 
 export function applyCardInterest(card: CreditCard, currentWeek: number): CreditCard {
-  // Interest only accrues on the statement balance (balance at last statement date)
-  // If the user paid in full before the due date, no interest
-  if (card.statementBalance <= 0) {
-    // No prior statement balance unpaid — generate new statement
+  // Generate new statement: capture current balance as statement balance
+  // Interest only accrues on balances carried for more than 30 days (4+ weeks)
+  const weeksCarried = card.lastStatementWeek > 0 ? currentWeek - card.lastStatementWeek : 0;
+
+  if (card.statementBalance <= 0 || weeksCarried < 4) {
+    // No interest — either paid in full or balance not yet 30 days old
     return {
       ...card,
       statementBalance: card.balance,
@@ -74,14 +77,15 @@ export function applyCardInterest(card: CreditCard, currentWeek: number): Credit
     };
   }
 
-  // Statement balance was carried — charge interest on it
+  // Balance has been carried 30+ days — charge interest on statement balance
   const monthlyRate = card.apr / 12;
   const interest = Math.round(card.statementBalance * monthlyRate * 100) / 100;
+  const newBalance = Math.min(card.limit, Math.round((card.balance + interest) * 100) / 100);
 
   return {
     ...card,
-    balance: Math.round((card.balance + interest) * 100) / 100,
-    statementBalance: card.balance + interest, // new statement = current balance + interest
+    balance: newBalance,
+    statementBalance: newBalance,
     lastStatementWeek: currentWeek,
   };
 }

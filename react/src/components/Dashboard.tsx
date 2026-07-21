@@ -4,7 +4,7 @@ import { formatCurrency, getNetWorth, calculateWeeklyExpenses, calculateWeeklyIn
 import { getStageDescription, getStageMilestone, getStageNumber } from '../engine/progression';
 import { THRESHOLDS } from '../engine/constants';
 import { ResumeModal } from './ResumeModal';
-import { LineChart } from './LineChart';
+import { NetWorthChart } from './NetWorthChart';
 import { DegreeType } from '../engine/types';
 
 const STAGE_ORDER = [
@@ -127,7 +127,7 @@ export function Dashboard() {
       {/* Net Worth Chart */}
       {state.netWorthHistory.length > 1 && (
         <div className="card" style={{ marginBottom: '20px' }}>
-          <LineChart data={state.netWorthHistory} label="Net Worth Over Time" color="#10b981" />
+          <NetWorthChart data={state.netWorthHistory} />
         </div>
       )}
 

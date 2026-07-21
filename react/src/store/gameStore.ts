@@ -16,10 +16,12 @@ type Panel = 'dashboard' | 'jobs' | 'banking' | 'credit' | 'housing' | 'utilitie
 export interface GameSettings {
   autoBillPay: boolean;
   autoTaxFiling: boolean;
+  autoCreditCardPay: boolean;
 }
 
 interface GameStore extends GameState {
   activePanel: Panel;
+  sidebarCollapsed: boolean;
   depositSplit: number;
   gameLoopInterval: number | null;
   settings: GameSettings;
@@ -93,8 +95,8 @@ const initialState = (): Omit<GameStore, 'startGame' | 'setActivePanel' | 'setGa
   previousJobs: [],
   activeHobbies: [],
   checking: createBankAccount('checking'),
-  savings: createBankAccount('savings'),
-  totalSaved: 0,
+  savings: { ...createBankAccount('savings'), balance: 500 },
+  totalSaved: 500,
   netWorthHistory: [],
   investmentHistory: [],
   w4: createDefaultW4(),
@@ -129,9 +131,10 @@ const initialState = (): Omit<GameStore, 'startGame' | 'setActivePanel' | 'setGa
   economy: { inflationMultiplier: 1.0, currentGasPrice: 3.50, weeklyFuelCost: 0 },
   multiplayer: { mode: 'single', playerId: '1', players: [], sharedJobMarket: [] },
   activePanel: 'dashboard',
+  sidebarCollapsed: false,
   depositSplit: 20,
   gameLoopInterval: null,
-  settings: { autoBillPay: true, autoTaxFiling: true },
+  settings: { autoBillPay: true, autoTaxFiling: true, autoCreditCardPay: false },
   pendingBills: [],
 });
 
@@ -229,7 +232,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   advanceWeek: () => {
     const state = get();
-    if (!state.currentJob && state.currentWeek > 0) return; // no job, no progress after first week
 
     const prevState = { ...state };
     let checking = { ...state.checking };
@@ -279,39 +281,47 @@ export const useGameStore = create<GameStore>((set, get) => ({
     let pendingBills = [...state.pendingBills];
     let creditCards = [...state.creditCards];
 
-    // Incidentals (food, entertainment, gas, coffee) go to credit card first, then checking
-    const incidentalAmount = (expenses.breakdown['Food'] || 0) +
-      (expenses.breakdown['Entertainment'] || 0) +
-      (expenses.breakdown['Gas & Transport'] || 0) +
-      (expenses.breakdown['Transport'] || 0) +
-      (expenses.breakdown['Transit Pass'] || 0);
+    // Categorize expenses for routing
+    const expenseCategories: Record<string, { amount: number; description: string }> = {
+      food: { amount: (expenses.breakdown['Food'] || 0), description: 'Food & dining' },
+      entertainment: { amount: (expenses.breakdown['Entertainment'] || 0), description: 'Entertainment' },
+      gas: { amount: (expenses.breakdown['Gas & Transport'] || 0) + (expenses.breakdown['Transport'] || 0) + (expenses.breakdown['Transit Pass'] || 0), description: 'Transport & gas' },
+      coffee: { amount: 0, description: 'Coffee & snacks' }, // included in food
+      phone: { amount: (expenses.breakdown['Phone'] || 0), description: 'Phone' },
+    };
 
     // Bills (rent, utilities, insurance, lease, registration, etc.)
-    const billAmount = expenses.total - incidentalAmount - (expenses.breakdown['Phone'] || 0);
-    const phoneAmount = expenses.breakdown['Phone'] || 0;
+    const incidentalCategories = ['food', 'entertainment', 'gas', 'coffee', 'phone'];
+    const totalIncidentals = incidentalCategories.reduce((s, cat) => s + (expenseCategories[cat]?.amount || 0), 0);
+    const billAmount = expenses.total - totalIncidentals;
 
-    // Route incidentals to credit card if available with room
-    let incidentalsPaid = false;
-    if (creditCards.length > 0) {
-      const cardWithRoom = creditCards.findIndex(c => (c.limit - c.balance) >= incidentalAmount);
-      if (cardWithRoom >= 0) {
-        creditCards[cardWithRoom] = {
-          ...creditCards[cardWithRoom],
-          balance: Math.round((creditCards[cardWithRoom].balance + incidentalAmount) * 100) / 100,
-        };
-        incidentalsPaid = true;
+    // Route each expense category based on user's card assignments
+    for (const category of incidentalCategories) {
+      const expense = expenseCategories[category];
+      if (!expense || expense.amount <= 0) continue;
+
+      const assignedCardId = state.expenseCardAssignments[category];
+
+      if (assignedCardId) {
+        // Charge to the assigned credit card (only if directed by user)
+        const cardIndex = creditCards.findIndex(c => c.id === assignedCardId);
+        if (cardIndex >= 0 && (creditCards[cardIndex].limit - creditCards[cardIndex].balance) >= expense.amount) {
+          const newBal = Math.min(creditCards[cardIndex].limit, Math.round((creditCards[cardIndex].balance + expense.amount) * 100) / 100);
+          creditCards[cardIndex] = {
+            ...creditCards[cardIndex],
+            balance: newBal,
+            recentCharges: [...creditCards[cardIndex].recentCharges.slice(-19), { week, amount: expense.amount, description: expense.description }],
+          };
+        } else {
+          // Card full or not found — fall back to checking
+          const w = withdraw(checking, expense.amount, week, expense.description, 'food');
+          if (w) checking = w;
+        }
+      } else {
+        // No card assigned — pay from checking
+        const w = withdraw(checking, expense.amount, week, expense.description, 'food');
+        if (w) checking = w;
       }
-    }
-    if (!incidentalsPaid && incidentalAmount > 0) {
-      // Fall back to checking
-      const w = withdraw(checking, incidentalAmount, week, 'Incidentals (food, gas, etc.)', 'food');
-      if (w) checking = w;
-    }
-
-    // Phone always from checking
-    if (phoneAmount > 0) {
-      const w = withdraw(checking, phoneAmount, week, 'Phone bill', 'utilities');
-      if (w) checking = w;
     }
 
     if (state.settings.autoBillPay) {
@@ -368,6 +378,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Interest only accrues on unpaid statement balance from prior cycle
     if (week % 4 === 0) {
       creditCards = creditCards.map(c => applyCardInterest(c, week));
+
+      // Auto-pay credit cards: pay full balance from checking on statement date
+      if (state.settings.autoCreditCardPay) {
+        for (let i = 0; i < creditCards.length; i++) {
+          if (creditCards[i].balance > 0) {
+            const payAmt = Math.min(creditCards[i].balance, checking.balance);
+            if (payAmt > 0) {
+              const w = withdraw(checking, payAmt, week, `Auto-pay: ${creditCards[i].name}`, 'credit_payment');
+              if (w) {
+                checking = w;
+                creditCards[i] = makeCardPayment(creditCards[i], payAmt, week);
+              }
+            }
+          }
+        }
+      }
     }
 
     // Calculate credit score if player has credit
@@ -503,7 +529,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
       age,
       notifications,
       totalSaved: checking.balance + savings.balance,
-      netWorthHistory: [...state.netWorthHistory.slice(-200), getNetWorth({ ...state, checking, savings, investments, retirementAccounts, vehicle: state.vehicle, creditCards, housing: state.housing } as any)],
+      netWorthHistory: [...state.netWorthHistory.slice(-200), {
+        week,
+        total: getNetWorth({ ...state, checking, savings, investments, retirementAccounts, vehicle: state.vehicle, creditCards, housing: state.housing } as any),
+        pay: checking.balance + savings.balance,
+        investments: investments.reduce((s, i) => s + i.shares * i.currentPrice, 0),
+        realEstate: (state.housing.type === 'house' || state.housing.type === 'nice_house') && state.housing.mortgage
+          ? (state.housing.type === 'nice_house' ? 450000 : 250000) - state.housing.mortgage.remainingBalance
+          : 0,
+        car: state.vehicle.owned ? state.vehicle.value : 0,
+        fourOhOneK: retirementAccounts.find(a => a.type === '401k')?.balance || 0,
+        traditionalIra: retirementAccounts.find(a => a.type === 'traditional_ira')?.balance || 0,
+        rothIra: retirementAccounts.find(a => a.type === 'roth_ira')?.balance || 0,
+      }],
       investmentHistory: [...state.investmentHistory.slice(-200), {
         total: investments.reduce((s, i) => s + i.shares * i.currentPrice, 0) + retirementAccounts.reduce((s, a) => s + a.balance, 0),
         brokerage: investments.reduce((s, i) => s + i.shares * i.currentPrice, 0),
@@ -554,25 +592,40 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
 
       // Job accumulation logic:
+      // - Promotion: replaces the prerequisite job directly (no notice needed)
       // - Salary job: replaces all existing jobs (you go full-time)
       // - Hourly job: added alongside existing jobs (doesn't remove any)
       let newPrimary: Job | null = state.currentJob;
       let newSecondaryJobs = [...state.secondaryJobs];
       let previousJobs = [...state.previousJobs];
 
+      // If this is a promotion, remove the job it promotes from
+      if (job.promotesFrom) {
+        if (newPrimary?.id === job.promotesFrom) {
+          previousJobs.push(newPrimary.id);
+          newPrimary = null;
+        } else {
+          const promoFrom = newSecondaryJobs.find(j => j.id === job.promotesFrom);
+          if (promoFrom) previousJobs.push(promoFrom.id);
+          newSecondaryJobs = newSecondaryJobs.filter(j => j.id !== job.promotesFrom);
+        }
+        // Also clear any pending notice for the old job
+        const newNotices = { ...state.jobNotices };
+        if (job.promotesFrom in newNotices) delete newNotices[job.promotesFrom];
+        set({ jobNotices: newNotices });
+      }
+
       if (job.payType === 'salary') {
         // Salary replaces everything — move all current jobs to previous
-        if (state.currentJob) previousJobs.push(state.currentJob.id);
-        previousJobs.push(...state.secondaryJobs.map(j => j.id));
+        if (newPrimary) previousJobs.push(newPrimary.id);
+        previousJobs.push(...newSecondaryJobs.map(j => j.id));
         newPrimary = job;
         newSecondaryJobs = [];
       } else {
         // Hourly: add alongside existing jobs
         if (!newPrimary) {
-          // No current job — this becomes primary
           newPrimary = job;
         } else {
-          // Already have jobs — add as secondary
           newSecondaryJobs = [...newSecondaryJobs, job];
         }
       }
