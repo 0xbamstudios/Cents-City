@@ -1208,3 +1208,242 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Small screen scaling */
+@media (max-width: 480px) {
+  .app-layout {
+    grid-template-columns: 50px 1fr;
+    grid-template-rows: 50px 1fr 50px;
+  }
+
+  .sidebar-minimized {
+    width: 50px !important;
+  }
+
+  .nav-item-mini {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+  }
+
+  .main-content {
+    padding: 10px;
+  }
+
+  .card {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .card-header {
+    margin-bottom: 10px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 10px 12px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+  }
+
+  .job-card {
+    padding: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .job-pay {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .job-pay .wage {
+    font-size: 16px;
+  }
+
+  .job-meta {
+    gap: 4px;
+  }
+
+  .job-tag {
+    font-size: 10px;
+    padding: 1px 5px;
+  }
+
+  .account-cards {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .account-card .account-balance {
+    font-size: 22px;
+  }
+
+  .housing-options {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .header {
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .header-week {
+    font-size: 11px;
+    padding: 2px 8px;
+  }
+
+  .header-balance {
+    font-size: 15px;
+  }
+
+  .speed-control {
+    gap: 4px;
+  }
+
+  .speed-btn {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+
+  .pause-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .progress-section {
+    margin-bottom: 12px;
+  }
+
+  .progress-header {
+    font-size: 11px;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stage-indicator {
+    margin-bottom: 12px;
+  }
+
+  .stage-dot {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+  }
+
+  .advisor-bar {
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .advisor-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .paycheck-stub {
+    padding: 12px;
+  }
+
+  .paycheck-row {
+    font-size: 12px;
+  }
+
+  .transfer-form {
+    padding: 10px;
+  }
+
+  .credit-gauge {
+    padding: 16px;
+  }
+
+  .credit-score-number {
+    font-size: 36px;
+  }
+
+  .credit-factors {
+    grid-template-columns: 1fr;
+  }
+
+  .modal {
+    padding: 16px;
+    max-height: 90vh;
+  }
+
+  .modal-header h3 {
+    font-size: 16px;
+  }
+
+  .stock-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .notifications {
+    top: 55px;
+    right: 10px;
+    left: 60px;
+  }
+
+  .notification {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  .setting-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .lot-detail {
+    overflow-x: auto;
+  }
+
+  .lot-row {
+    min-width: 500px;
+  }
+}
+
+/* Medium screen tweaks */
+@media (max-width: 768px) and (min-width: 481px) {
+  .main-content {
+    padding: 14px;
+  }
+
+  .dashboard-grid {
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 12px 14px;
+  }
+
+  .job-card {
+    padding: 12px;
+  }
+
+  .stock-card {
+    padding: 10px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+}
