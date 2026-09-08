@@ -18,8 +18,13 @@ export function getAvailableJobsForStage(state: GameState): Job[] {
     const jobLevelNum = parseInt(job.level.replace('level', ''));
     if (jobLevelNum > maxLevel) return false;
 
-    // Don't show current job
+    // Don't show jobs the player currently holds (primary or secondary)
     if (state.currentJob && state.currentJob.id === job.id) return false;
+    if (state.secondaryJobs?.some(j => j.id === job.id)) return false;
+
+    // Hide a job for 6 weeks after a rejection ("went with another candidate")
+    const rejectedUntil = state.jobRejections?.[job.id];
+    if (rejectedUntil !== undefined && state.currentWeek < rejectedUntil) return false;
 
     // Check promotion prerequisites
     if (job.promotesFrom) {
@@ -49,8 +54,47 @@ export function getAvailableJobsForStage(state: GameState): Job[] {
       if (weeksInRole < weeksRequired) return false;
     }
 
+    // ── Advanced career gating (C-Suite / Finance) ──
+    // Executive Acumen requirement (skill hidden until unlocked; -1 means locked)
+    if (job.minExecutiveAcumen !== undefined) {
+      const ea = state.skills.skills.executive_acumen;
+      if (ea < job.minExecutiveAcumen) return false;
+    }
+    // Financial Leadership must be unlocked (>= 0)
+    if (job.requiresFinancialLeadership) {
+      if ((state.skills.skills.financial_leadership ?? -1) < 0) return false;
+    }
+    // Family experience requirement (e.g. CEO needs prior C-Suite time)
+    if (job.requiresFamilyExperience) {
+      const weeks = weeksOfFamilyExperience(state, job.requiresFamilyExperience);
+      if (weeks < (job.requiresFamilyWeeks || 52)) return false;
+    }
+    // Responsibility requirement (e.g. Principal Engineer / Eng Manager)
+    if (job.minResponsibility !== undefined) {
+      if ((state.skills.skills.responsibility ?? 0) < job.minResponsibility) return false;
+    }
+
     return true;
   });
+}
+
+// Total weeks of experience the player has in a given job family (current + past)
+export function weeksOfFamilyExperience(state: GameState, family: string): number {
+  let weeks = 0;
+  for (const entry of state.jobHistory) {
+    if ((entry.job as any).family === family) {
+      weeks += Math.max(0, entry.endWeek - entry.startWeek);
+    }
+  }
+  // Include current job time
+  const current = [state.currentJob, ...state.secondaryJobs].filter(Boolean) as Job[];
+  for (const j of current) {
+    if ((j as any).family === family) {
+      const lastEnd = state.jobHistory.length > 0 ? state.jobHistory[state.jobHistory.length - 1].endWeek : 0;
+      weeks += Math.max(0, state.currentWeek - lastEnd);
+    }
+  }
+  return weeks;
 }
 
 function getMaxJobLevel(state: GameState): number {
@@ -138,7 +182,7 @@ function calculateSkillBonus(job: Job, state: GameState): number {
 }
 
 export function calculateWeeklyPay(job: Job): { base: number; maxWithTips: number } {
-  const base = job.perHourWage * job.hoursPerWeek;
+  const base = job.annualSalary ? Math.round(job.annualSalary / 52) : job.perHourWage * job.hoursPerWeek;
   const maxTips = job.maxTips * job.hoursPerWeek * 0.3; // estimated tips per week
   return { base, maxWithTips: base + maxTips };
 }

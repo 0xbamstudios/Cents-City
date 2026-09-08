@@ -52,13 +52,29 @@ export class CentsCityStack extends cdk.Stack {
       },
     });
 
-    const gamesResource = api.root.addResource('games');
-    const counterResource = gamesResource.addResource('counter');
-
     const lambdaIntegration = new apigateway.LambdaIntegration(gameCounterLambda);
 
+    // All routes live under /api so they map cleanly through the CloudFront
+    // "/api/*" behavior (CloudFront forwards the full path to the API origin).
+    const apiResource = api.root.addResource('api');
+
+    // /api/games/counter
+    const counterResource = apiResource.addResource('games').addResource('counter');
     counterResource.addMethod('PUT', lambdaIntegration);
     counterResource.addMethod('GET', lambdaIntegration);
+
+    // /api/startup — save an idea (POST) and update status on rounds/fail/sell/IPO (PUT)
+    const startupResource = apiResource.addResource('startup');
+    startupResource.addMethod('POST', lambdaIntegration);
+    startupResource.addMethod('PUT', lambdaIntegration);
+
+    // /api/retire — capture age + net worth at retirement
+    const retireResource = apiResource.addResource('retire');
+    retireResource.addMethod('POST', lambdaIntegration);
+
+    // /api/stats — aggregate game statistics for the dashboard
+    const statsResource = apiResource.addResource('stats');
+    statsResource.addMethod('GET', lambdaIntegration);
 
     // ─── S3 Bucket for React App ─────────────────────────────────────────
     const siteBucket = new s3.Bucket(this, 'SiteBucket', {

@@ -13,7 +13,10 @@ import { HousingPanel } from './components/HousingPanel';
 import { InvestingPanel } from './components/InvestingPanel';
 import { SettingsPanel } from './components/SettingsPanel';
 import { UtilitiesPanel } from './components/UtilitiesPanel';
+import { EducationPanel } from './components/EducationPanel';
 import { Notifications } from './components/Notifications';
+import { TutorialModal } from './components/TutorialModal';
+import { QuickEventModal } from './components/QuickEventModal';
 
 export default function App() {
   const { playerName, activePanel, sidebarCollapsed } = useGameStore();
@@ -26,6 +29,7 @@ export default function App() {
     switch (activePanel) {
       case 'dashboard': return <Dashboard />;
       case 'jobs': return <JobsPanel />;
+      case 'education': return <EducationPanel />;
       case 'banking': return <BankingPanel />;
       case 'credit': return <CreditPanel />;
       case 'taxes': return <TaxesPanel />;
@@ -46,6 +50,8 @@ export default function App() {
       </div>
       <AdvisorBar />
       <Notifications />
+      <TutorialModal />
+      <QuickEventModal />
     </div>
   );
 }

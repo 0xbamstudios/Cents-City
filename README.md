@@ -2,6 +2,10 @@
 
 Cents City is a financial literacy game that teaches real-world money skills through progressive, life-simulation gameplay. You start as an 18-year-old with a high school diploma living with your parents and with $500 in savings, then work, budget, borrow, invest, and make life decisions on your way to financial independence. A demo environment is hosted [here](https://www.cents-city.com/).
 
+## The Goal
+
+**Retire with a net worth of at least $3,000,000.** That's the object of the game. Build your net worth through steady income, smart budgeting, good credit, home equity, and long-term investing — then hit the **Retire** button (on the Jobs page) once you reach the target. The younger you retire and the higher your net worth, the better your standing on the leaderboard stats. Your progress toward the goal is shown as a percentage next to the Retire button.
+
 ## How to Play
 
 ### Getting Started
@@ -22,7 +26,7 @@ The game unlocks new capabilities as you hit savings milestones:
 | Mobility | $10,000 saved | Buy or lease a car; unlock higher-paying jobs |
 | Career Growth | Level 7 job | Salaried roles with 401(k) and health benefits |
 | Investing | $25,000 saved | Open a brokerage account; buy stocks and fund retirement |
-| Life Milestones | Ongoing | Nicer housing, buy a home, and long-term wealth building |
+| Life Milestones | Ongoing | Nicer housing, buy a home, and long-term wealth building toward the $3M retirement goal |
 
 ### Core Mechanics
 

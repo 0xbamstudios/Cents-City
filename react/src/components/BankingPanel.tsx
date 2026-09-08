@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { formatCurrency } from '../engine/finance';
+import { PERSONAL_LOAN } from '../engine/constants';
 
 export function BankingPanel() {
   const state = useGameStore();
@@ -89,6 +90,9 @@ export function BankingPanel() {
       {/* Direct Deposit Config */}
       <DirectDepositConfig />
 
+      {/* Personal Loan */}
+      <BankLoanSection />
+
       {/* Transactions */}
       <div className="card">
         <div className="card-header">
@@ -150,6 +154,80 @@ function DirectDepositConfig() {
       </div>
       <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '8px' }}>
         {100 - savingsPercent}% to Checking • {savingsPercent}% to Savings
+      </div>
+    </div>
+  );
+}
+
+function BankLoanSection() {
+  const state = useGameStore();
+  const takeBankLoan = useGameStore((s) => s.takeBankLoan);
+  const [amount, setAmount] = useState('');
+  const [toAccount, setToAccount] = useState<'checking' | 'savings'>('checking');
+
+  const score = state.creditScore?.score ?? 0;
+  const apr = score >= 740 ? PERSONAL_LOAN.aprExcellent
+    : score >= 670 ? PERSONAL_LOAN.aprGood
+    : score >= 580 ? PERSONAL_LOAN.aprFair
+    : PERSONAL_LOAN.aprPoor;
+
+  const amt = Math.round(Number(amount) || 0);
+  const valid = amt >= PERSONAL_LOAN.minAmount && amt <= PERSONAL_LOAN.maxAmount;
+  const activeLoans = state.loans.filter((l) => l.type === 'personal_bank' && l.remainingBalance > 0);
+
+  return (
+    <div className="card" style={{ marginBottom: '20px' }}>
+      <div className="card-header">
+        <span className="card-title">🏦 Personal Loan</span>
+        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+          Your rate: {(apr * 100).toFixed(1)}% APR
+        </span>
+      </div>
+      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
+        Need cash? Borrow {formatCurrency(PERSONAL_LOAN.minAmount)}–{formatCurrency(PERSONAL_LOAN.maxAmount)} from the bank
+        over {PERSONAL_LOAN.termMonths} months. Your APR depends on your credit score, and a {Math.round(PERSONAL_LOAN.originationFeePct * 100)}% origination fee
+        is taken from the proceeds. Better credit means a cheaper loan.
+      </p>
+
+      {activeLoans.length > 0 && (
+        <div style={{ marginBottom: '12px' }}>
+          {activeLoans.map((l) => (
+            <div key={l.id} className="paycheck-row">
+              <span>{l.name} @ {(l.interestRate * 100).toFixed(1)}%</span>
+              <span style={{ color: 'var(--accent-red)' }}>
+                {formatCurrency(l.remainingBalance)} left • {formatCurrency(l.monthlyPayment)}/mo
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '13px' }}>$</span>
+        <input
+          type="number"
+          min={PERSONAL_LOAN.minAmount}
+          max={PERSONAL_LOAN.maxAmount}
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          style={{ width: '110px', padding: '6px', border: '1px solid var(--border)', borderRadius: '6px' }}
+        />
+        <select
+          value={toAccount}
+          onChange={(e) => setToAccount(e.target.value as 'checking' | 'savings')}
+          style={{ padding: '6px', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '13px' }}
+        >
+          <option value="checking">to Checking</option>
+          <option value="savings">to Savings</option>
+        </select>
+        <button
+          className="btn btn-primary"
+          onClick={() => { if (valid) { takeBankLoan(amt, toAccount); setAmount(''); } }}
+          disabled={!valid}
+        >
+          Borrow
+        </button>
       </div>
     </div>
   );

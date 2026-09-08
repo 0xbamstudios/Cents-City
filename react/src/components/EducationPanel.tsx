@@ -25,6 +25,7 @@ export function EducationPanel() {
   const state = useGameStore();
   const enroll = useGameStore((s) => s.enrollInProgram);
   const drop = useGameStore((s) => s.dropProgram);
+  const switchPace = useGameStore((s) => s.switchEnrollmentPace);
   const takeBusinessClass = useGameStore((s) => s.takeBusinessClass);
 
   const edu = state.education;
@@ -60,7 +61,26 @@ export function EducationPanel() {
         <div className="card" style={{ marginBottom: '20px', borderColor: 'var(--accent-blue)' }}>
           <div className="card-header">
             <span className="card-title">Currently Enrolled</span>
-            <button className="btn btn-outline" onClick={drop}>Drop Out</button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {(enrollment.program === 'college' || enrollment.program === 'mba') && (
+                <button
+                  className="btn btn-outline"
+                  onClick={() => {
+                    const toFull = enrollment.pace !== 'full_time';
+                    if (toFull) {
+                      const hasFullTimeJob = [state.currentJob, ...state.secondaryJobs]
+                        .filter(Boolean)
+                        .some((j: any) => j.payType === 'salary' || j.hoursPerWeek >= 35);
+                      if (hasFullTimeJob && !window.confirm('Switching to full-time study means leaving your full-time job(s). Part-time hourly work can continue. Proceed?')) return;
+                    }
+                    switchPace();
+                  }}
+                >
+                  Switch to {enrollment.pace === 'full_time' ? 'Part-Time' : 'Full-Time'}
+                </button>
+              )}
+              <button className="btn btn-outline" onClick={drop}>Drop Out</button>
+            </div>
           </div>
           <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>
             {EDUCATION.programs[enrollment.program].label} — {enrollment.pace === 'full_time' ? 'Full-Time' : 'Part-Time'}
@@ -95,7 +115,9 @@ export function EducationPanel() {
               const cfg = EDUCATION.programs[id];
               const totalCost = cfg.credits * cfg.tuitionPerCredit;
               const mbaBlocked = id === 'mba' && edu.highestDegree !== 'bachelors' && edu.highestDegree !== 'mba';
-              const fullTimeBlocked = state.totalWeeklyHours > 40;
+              const hasFullTimeJob = [state.currentJob, ...state.secondaryJobs]
+                .filter(Boolean)
+                .some((j: any) => j.payType === 'salary' || j.hoursPerWeek >= 35);
               return (
                 <div key={id} className="job-card">
                   <div className="job-info">
@@ -115,9 +137,12 @@ export function EducationPanel() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end' }}>
                     <button
                       className="btn btn-primary"
-                      onClick={() => enroll(id, 'full_time')}
-                      disabled={mbaBlocked || fullTimeBlocked}
-                      title={fullTimeBlocked ? 'Full-time requires working 40 hours/week or less' : ''}
+                      onClick={() => {
+                        if (hasFullTimeJob && !window.confirm('Enrolling full-time means leaving your full-time job(s). Part-time hourly work can continue. Proceed?')) return;
+                        enroll(id, 'full_time');
+                      }}
+                      disabled={mbaBlocked}
+                      title={hasFullTimeJob ? 'Full-time study means leaving full-time employment' : ''}
                     >
                       Full-Time
                     </button>
@@ -134,7 +159,7 @@ export function EducationPanel() {
             })}
           </div>
           <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '10px' }}>
-            Full-time finishes faster but requires 40 or fewer work hours/week. Part-time takes about twice as long but lets you keep working.
+            Full-time finishes faster but means leaving any full-time job (salaried or 35+ hours/week). Part-time takes about twice as long but lets you keep working.
           </p>
         </div>
       )}

@@ -1,9 +1,20 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
 import { getSkillLabel } from '../engine/skills';
-import { SkillType } from '../engine/types';
+import { SkillType, DegreeType } from '../engine/types';
 
-type Panel = 'dashboard' | 'jobs' | 'banking' | 'credit' | 'housing' | 'utilities' | 'taxes' | 'investing' | 'settings';
+function sidebarDegreeLabel(degree: DegreeType): string {
+  const labels: Record<DegreeType, string> = {
+    high_school: 'High School',
+    trade_school: 'Trade School',
+    associates: "Associate's",
+    bachelors: "Bachelor's",
+    mba: 'MBA',
+  };
+  return labels[degree];
+}
+
+type Panel = 'dashboard' | 'jobs' | 'education' | 'banking' | 'credit' | 'housing' | 'utilities' | 'taxes' | 'investing' | 'settings';
 
 interface NavItem {
   id: Panel;
@@ -15,6 +26,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard', unlocksAtStage: 1 },
   { id: 'jobs', icon: '💼', label: 'Jobs', unlocksAtStage: 1 },
+  { id: 'education', icon: '🎓', label: 'Education', unlocksAtStage: 1 },
   { id: 'banking', icon: '🏦', label: 'Banking', unlocksAtStage: 1 },
   { id: 'credit', icon: '💳', label: 'Credit', unlocksAtStage: 3 },
   { id: 'housing', icon: '🏠', label: 'Housing & Transport', unlocksAtStage: 2 },
@@ -30,7 +42,7 @@ const STAGE_ORDER = [
 ];
 
 export function Sidebar() {
-  const { activePanel, setActivePanel, stage, skills, currentWeek, age, creditScore, sidebarCollapsed } = useGameStore();
+  const { activePanel, setActivePanel, stage, skills, currentWeek, age, creditScore, education, sidebarCollapsed } = useGameStore();
   const currentStageNum = STAGE_ORDER.indexOf(stage) + 1;
 
   const getGameDate = (): string => {
@@ -46,9 +58,12 @@ export function Sidebar() {
   };
 
   const topSkills = Object.entries(skills.skills)
-    .filter(([, v]) => v > 0)
+    .filter(([k, v]) => v > 0 && k !== 'happiness')
     .sort(([, a], [, b]) => b - a)
     .slice(0, 8);
+
+  const happiness = skills.skills.happiness ?? 0;
+  const happinessColor = happiness >= 60 ? '#10b981' : happiness >= 25 ? '#f59e0b' : '#ef4444';
 
   const skillColors = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899', '#14b8a6', '#ef4444', '#6366f1'];
 
@@ -144,7 +159,38 @@ export function Sidebar() {
           </div>
         )}
 
+        {/* Education */}
+        <div style={{ marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <h3 style={{ marginBottom: '6px' }}>Education</h3>
+          <div style={{ fontSize: '14px', fontWeight: 700 }}>{sidebarDegreeLabel(education.highestDegree)}</div>
+          {education.enrollment && (
+            <div style={{ fontSize: '10px', color: 'var(--accent-blue)', marginTop: '2px' }}>
+              Enrolled: {Math.round((education.enrollment.creditsCompleted / education.enrollment.creditsRequired) * 100)}% complete
+            </div>
+          )}
+        </div>
+
         <h3>Skills</h3>
+
+        {/* Happiness — always shown */}
+        <div className="skill-bar" style={{ marginBottom: '10px' }}>
+          <div className="skill-bar-label">
+            <span>😊 Happiness</span>
+            <span>{Math.round(happiness)}%</span>
+          </div>
+          <div className="skill-bar-track">
+            <div
+              className="skill-bar-fill"
+              style={{ width: `${happiness}%`, background: happinessColor }}
+            />
+          </div>
+          {happiness < 25 && (
+            <div style={{ fontSize: '10px', color: '#ef4444', marginTop: '2px' }}>
+              Burnout — endurance &amp; communication dropping
+            </div>
+          )}
+        </div>
+
         {topSkills.length === 0 && (
           <p style={{ color: 'var(--text-sidebar-dim)', fontSize: '12px' }}>
             Get a job to start building skills!

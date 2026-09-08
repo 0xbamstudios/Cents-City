@@ -670,6 +670,8 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh;
+  overflow-y: auto;
+  padding: 24px;
   background: linear-gradient(135deg, #1a1d2e 0%, #2d3148 100%);
 }
 
@@ -679,6 +681,8 @@ body {
   padding: 48px;
   max-width: 480px;
   width: 100%;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
   text-align: center;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }

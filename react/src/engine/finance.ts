@@ -64,23 +64,36 @@ export function applySavingsInterest(account: BankAccount, week: number): BankAc
 export function calculateWeeklyExpenses(state: GameState): { total: number; breakdown: Record<string, number> } {
   const breakdown: Record<string, number> = {};
 
-  // Food
-  breakdown['Food'] = WEEKLY_EXPENSES.food;
+  // Cost of living rises over time with inflation (compounds weekly in the loop).
+  const col = state.economy?.costOfLivingIndex ?? 1.0;
+
+  // Standard of living: nicer housing means pricier food, snacks, and dining out.
+  const solByHousing: Record<string, number> = {
+    parents_basement: 0.85,
+    apartment: 1.0,
+    nice_apartment: 1.25,
+    house: 1.5,
+    nice_house: 2.0,
+  };
+  const foodStandardFactor = solByHousing[state.housing.type] ?? 1.0;
+
+  // Food / snacks — scales with both cost of living and standard of living
+  breakdown['Food'] = Math.round(WEEKLY_EXPENSES.food * col * foodStandardFactor);
 
   // Transport
   if (state.vehicle.owned || state.vehicle.leased) {
-    breakdown['Gas & Transport'] = WEEKLY_EXPENSES.transport_car;
+    breakdown['Gas & Transport'] = Math.round(WEEKLY_EXPENSES.transport_car * col);
   } else if (state.vehicle.transitPass) {
     breakdown['Transit Pass'] = Math.round(state.vehicle.monthlyPayment / 4.33);
   } else {
-    breakdown['Transport'] = WEEKLY_EXPENSES.transport_no_car;
+    breakdown['Transport'] = Math.round(WEEKLY_EXPENSES.transport_no_car * col);
   }
 
-  // Entertainment
-  breakdown['Entertainment'] = WEEKLY_EXPENSES.entertainment;
+  // Entertainment — also nudged up by standard of living
+  breakdown['Entertainment'] = Math.round(WEEKLY_EXPENSES.entertainment * col * (0.75 + 0.25 * foodStandardFactor));
 
   // Phone
-  breakdown['Phone'] = WEEKLY_EXPENSES.phone;
+  breakdown['Phone'] = Math.round(WEEKLY_EXPENSES.phone * col);
 
   // Housing (monthly costs converted to weekly)
   if (state.housing.type === 'apartment' || state.housing.type === 'nice_apartment') {
@@ -115,9 +128,13 @@ export function calculateWeeklyExpenses(state: GameState): { total: number; brea
 export function calculateWeeklyIncome(state: GameState): { gross: number; net: number; tax: number; tips: number } {
   if (!state.currentJob) return { gross: 0, net: 0, tax: 0, tips: 0 };
 
-  const job = state.currentJob;
-  const gross = job.perHourWage * job.hoursPerWeek;
-  const tips = job.maxTips > 0 ? Math.round(Math.random() * job.maxTips * job.hoursPerWeek * 0.3) : 0;
+  const allJobs = [state.currentJob, ...(state.secondaryJobs || [])];
+  const weeklyPay = (job: typeof state.currentJob): number => {
+    if (!job) return 0;
+    return job.annualSalary ? Math.round(job.annualSalary / 52) : job.perHourWage * job.hoursPerWeek;
+  };
+  const gross = allJobs.reduce((s, j) => s + weeklyPay(j), 0);
+  const tips = allJobs.reduce((s, j) => s + (j && j.maxTips > 0 ? Math.round(Math.random() * j.maxTips * j.hoursPerWeek * 0.3) : 0), 0);
   const totalGross = gross + tips;
 
   // Simple withholding based on W4
@@ -168,6 +185,18 @@ export function getNetWorth(state: GameState): number {
   // Mortgage
   if (state.housing.mortgage) {
     netWorth -= state.housing.mortgage.remainingBalance;
+  }
+
+  // Auto and other loans
+  if (state.loans) {
+    for (const loan of state.loans) {
+      netWorth -= loan.remainingBalance;
+    }
+  }
+
+  // Startup equity (paper value of the founder's stake)
+  if (state.startup && !state.startup.failed) {
+    netWorth += Math.round(state.startup.valuation * state.startup.founderEquityPct);
   }
 
   return Math.round(netWorth * 100) / 100;

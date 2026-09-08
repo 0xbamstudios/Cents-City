@@ -4,19 +4,14 @@ import { formatCurrency } from '../engine/finance';
 import { RETIREMENT, CAPITAL_GAINS_RATES } from '../engine/constants';
 import { Investment } from '../engine/types';
 import { LineChart } from './LineChart';
-
-const MOCK_STOCKS = [
-  { id: 'CNTC', name: 'Cents City Corp', price: 42.50, change: 1.2 },
-  { id: 'SVNG', name: 'SaveMore Inc', price: 128.00, change: -0.8 },
-  { id: 'GRWT', name: 'GrowthTech', price: 85.75, change: 3.5 },
-  { id: 'STDY', name: 'SteadyDiv Fund', price: 55.20, change: 0.3 },
-  { id: 'INDX', name: 'Cents City Index', price: 210.00, change: 0.9 },
-];
+import { StackedAreaChart } from './StackedAreaChart';
 
 export function InvestingPanel() {
   const state = useGameStore();
   const buyStock = useGameStore((s) => s.buyStock);
   const sellStock = useGameStore((s) => s.sellStock);
+  const buyStockInAccount = useGameStore((s) => s.buyStockInAccount);
+  const sellStockInAccount = useGameStore((s) => s.sellStockInAccount);
   const contribute401k = useGameStore((s) => s.contributeRetirement);
   const [buyShares, setBuyShares] = useState<Record<string, string>>({});
   const [buyDollars, setBuyDollars] = useState<Record<string, string>>({});
@@ -24,12 +19,33 @@ export function InvestingPanel() {
   const [retirementAmount, setRetirementAmount] = useState('');
   const [selectedStockId, setSelectedStockId] = useState<string | null>(null);
   const [fundSource, setFundSource] = useState<'checking' | 'savings'>('checking');
+  const [buyAccount, setBuyAccount] = useState<'brokerage' | 'roth_ira' | 'traditional_ira' | '401k'>('brokerage');
   const [chartView, setChartView] = useState<'total' | 'brokerage' | 'roth_ira' | 'traditional_ira' | 'fourOhOneK'>('total');
+
+  // Live market from state, with a week-over-week change %
+  const MOCK_STOCKS = state.stockMarket.map((s) => ({
+    id: s.id,
+    name: s.name,
+    price: s.price,
+    change: s.prevPrice > 0 ? Math.round(((s.price - s.prevPrice) / s.prevPrice) * 1000) / 10 : 0,
+  }));
+
+  // Cash available to invest inside each retirement account (balance minus stocks held there)
+  const accountCash = (acct: 'roth_ira' | 'traditional_ira' | '401k') => {
+    const bal = state.retirementAccounts.filter(a => a.type === acct && a.active !== false).reduce((s, a) => s + a.balance, 0);
+    const invested = state.investments.filter(i => i.account === acct).reduce((s, i) => s + i.shares * i.currentPrice, 0);
+    return Math.max(0, bal - invested);
+  };
 
   const has401k = state.has401kAccess;
   const rollover401k = useGameStore((s) => s.rollover401k);
-  const k401Balance = state.retirementAccounts.find(a => a.type === '401k')?.balance || 0;
-  const canRollover = !has401k && k401Balance > 0;
+
+  // Active 401(k) (current job) vs. inactive/rollover-eligible ones (former jobs)
+  const active401ks = state.retirementAccounts.filter(a => a.type === '401k' && a.active !== false);
+  const inactive401ks = state.retirementAccounts.filter(a => a.type === '401k' && a.active === false && a.balance > 0);
+  const active401kBalance = active401ks.reduce((s, a) => s + a.balance, 0);
+  const rolloverBalance = inactive401ks.reduce((s, a) => s + a.balance, 0);
+  const canRollover = rolloverBalance > 0;
 
   const selectedInvestment = state.investments.find(i => i.id === selectedStockId) || null;
 
@@ -57,11 +73,23 @@ export function InvestingPanel() {
               <option value="fourOhOneK">401(k)</option>
             </select>
           </div>
-          <LineChart
-            data={state.investmentHistory.map(h => h[chartView])}
-            label={chartView === 'total' ? 'Total Portfolio' : chartView === 'brokerage' ? 'Brokerage' : chartView === 'roth_ira' ? 'Roth IRA' : chartView === 'traditional_ira' ? 'Traditional IRA' : '401(k)'}
-            color={chartView === 'total' ? '#8b5cf6' : chartView === 'brokerage' ? '#3b82f6' : '#10b981'}
-          />
+          {chartView === 'total' ? (
+            <StackedAreaChart
+              label="Total Portfolio (all accounts)"
+              series={[
+                { label: 'Brokerage', color: '#3b82f6', data: state.investmentHistory.map(h => h.brokerage) },
+                { label: 'Roth IRA', color: '#10b981', data: state.investmentHistory.map(h => h.roth_ira) },
+                { label: 'Traditional IRA', color: '#f59e0b', data: state.investmentHistory.map(h => h.traditional_ira) },
+                { label: '401(k)', color: '#8b5cf6', data: state.investmentHistory.map(h => h.fourOhOneK) },
+              ]}
+            />
+          ) : (
+            <LineChart
+              data={state.investmentHistory.map(h => h[chartView])}
+              label={chartView === 'brokerage' ? 'Brokerage' : chartView === 'roth_ira' ? 'Roth IRA' : chartView === 'traditional_ira' ? 'Traditional IRA' : '401(k)'}
+              color={chartView === 'brokerage' ? '#3b82f6' : '#10b981'}
+            />
+          )}
         </div>
       )}
 
@@ -90,6 +118,11 @@ export function InvestingPanel() {
                   <div>
                     <div className="stock-name">
                       {inv.name}
+                      {inv.account && inv.account !== 'brokerage' && (
+                        <span style={{ fontSize: '10px', marginLeft: '6px', padding: '1px 6px', borderRadius: '8px', background: 'rgba(16,185,129,0.12)', color: 'var(--accent-green)' }}>
+                          {inv.account === 'roth_ira' ? 'Roth IRA' : inv.account === 'traditional_ira' ? 'Trad IRA' : '401(k)'}
+                        </span>
+                      )}
                       {isSelected && <span style={{ fontSize: '11px', marginLeft: '6px', color: 'var(--accent-blue)' }}>▼ lots</span>}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
@@ -119,7 +152,8 @@ export function InvestingPanel() {
                         e.stopPropagation();
                         const qty = parseInt(sellShares[inv.id] || '0');
                         if (qty > 0) {
-                          sellStock(inv.id, qty);
+                          if (inv.account && inv.account !== 'brokerage') sellStockInAccount(inv.id, qty);
+                          else sellStock(inv.id, qty);
                           setSellShares({ ...sellShares, [inv.id]: '' });
                         }
                       }}
@@ -130,7 +164,8 @@ export function InvestingPanel() {
                       className="btn btn-outline"
                       onClick={(e) => {
                         e.stopPropagation();
-                        sellStock(inv.id, inv.shares);
+                        if (inv.account && inv.account !== 'brokerage') sellStockInAccount(inv.id, inv.shares);
+                        else sellStock(inv.id, inv.shares);
                       }}
                     >
                       Sell All
@@ -161,15 +196,27 @@ export function InvestingPanel() {
             Enter shares OR a dollar amount. Held &lt;1 year = short-term (22%). Held 1+ year = long-term (15%).
           </p>
           <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Fund from:</span>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Account:</span>
             <select
-              value={fundSource}
-              onChange={(e) => setFundSource(e.target.value as 'checking' | 'savings')}
+              value={buyAccount}
+              onChange={(e) => setBuyAccount(e.target.value as any)}
               style={{ padding: '4px 8px', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '12px' }}
             >
-              <option value="checking">Checking</option>
-              <option value="savings">Savings</option>
+              <option value="brokerage">Brokerage</option>
+              <option value="roth_ira">Roth IRA ({formatCurrency(accountCash('roth_ira'))})</option>
+              <option value="traditional_ira">Traditional IRA ({formatCurrency(accountCash('traditional_ira'))})</option>
+              <option value="401k">401(k) ({formatCurrency(accountCash('401k'))})</option>
             </select>
+            {buyAccount === 'brokerage' && (
+              <select
+                value={fundSource}
+                onChange={(e) => setFundSource(e.target.value as 'checking' | 'savings')}
+                style={{ padding: '4px 8px', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '12px' }}
+              >
+                <option value="checking">Checking</option>
+                <option value="savings">Savings</option>
+              </select>
+            )}
           </div>
         </div>
         <div className="stock-list">
@@ -215,7 +262,11 @@ export function InvestingPanel() {
                       qty = Math.floor(dollarAmt / stock.price);
                     }
                     if (qty > 0) {
-                      buyStock(stock.id, stock.name, stock.price, qty, fundSource);
+                      if (buyAccount === 'brokerage') {
+                        buyStock(stock.id, stock.name, stock.price, qty, fundSource);
+                      } else {
+                        buyStockInAccount(stock.id, stock.name, stock.price, qty, buyAccount);
+                      }
                       setBuyShares({ ...buyShares, [stock.id]: '' });
                       setBuyDollars({ ...buyDollars, [stock.id]: '' });
                     }
@@ -234,32 +285,34 @@ export function InvestingPanel() {
         <div className="card-header">
           <span className="card-title">Retirement</span>
         </div>
+        {/* Active 401(k) — automatic for salaried jobs */}
         {has401k && (
           <div style={{ padding: '12px', background: 'var(--bg-primary)', borderRadius: '8px', marginBottom: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span><strong>401(k)</strong></span>
-              <span>{formatCurrency(state.retirementAccounts.find(a => a.type === '401k')?.balance || 0)}</span>
+              <span><strong>401(k)</strong> <span style={{ fontSize: '11px', color: 'var(--accent-green)' }}>• Auto-contributing</span></span>
+              <span>{formatCurrency(active401kBalance)}</span>
             </div>
             <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-              Employer matches {RETIREMENT.employerMatchPercent * 100}% up to {RETIREMENT.employerMatchMax * 100}% of salary.
-              Annual limit: {formatCurrency(RETIREMENT.fourOhOneKLimit)}
+              {RETIREMENT.salaryAutoContributionPercent * 100}% of your salary is contributed automatically,
+              plus a {RETIREMENT.employerMatchPercent * 100}% employer match. Annual limit: {formatCurrency(RETIREMENT.fourOhOneKLimit)}
             </div>
           </div>
         )}
-        {!has401k && (
+        {!has401k && active401kBalance === 0 && rolloverBalance === 0 && (
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-            401(k) available at jobs that offer it (salary roles, municipal positions).
+            A 401(k) starts automatically when you take a salaried job. Contributions are deducted from each paycheck.
           </p>
         )}
 
-        {/* 401k Rollover */}
+        {/* 401k Rollover — inactive 401(k)s from former jobs */}
         {canRollover && (
           <div style={{ padding: '12px', background: 'rgba(59,130,246,0.05)', border: '1px solid var(--accent-blue)', borderRadius: '8px', marginBottom: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <strong style={{ fontSize: '13px' }}>401(k) Rollover Available</strong>
+                <strong style={{ fontSize: '13px' }}>Former 401(k) — Rollover Available</strong>
                 <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                  You left your 401(k) job. Roll over {formatCurrency(k401Balance)} to a Traditional IRA with no penalty.
+                  You have {formatCurrency(rolloverBalance)} in {inactive401ks.length} old 401(k){inactive401ks.length > 1 ? 's' : ''} from previous
+                  {inactive401ks.length > 1 ? ' jobs' : ' a job'}. Roll it into a Traditional IRA (no penalty) to invest for tax-free growth.
                 </div>
               </div>
               <button className="btn btn-primary" onClick={rollover401k}>
@@ -269,22 +322,31 @@ export function InvestingPanel() {
           </div>
         )}
 
+        {/* IRA balances */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-          {(['roth_ira', 'traditional_ira', '401k'] as const).map((type) => {
-            if (type === '401k' && !has401k) return null;
+          {(['roth_ira', 'traditional_ira'] as const).map((type) => {
             const account = state.retirementAccounts.find(a => a.type === type);
-            const label = type === 'roth_ira' ? 'Roth IRA' : type === 'traditional_ira' ? 'Traditional IRA' : '401(k)';
+            const label = type === 'roth_ira' ? 'Roth IRA' : 'Traditional IRA';
+            const invested = account?.invested || 0;
             return (
               <div key={type} style={{ flex: 1, padding: '12px', border: '1px solid var(--border)', borderRadius: '8px' }}>
                 <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{label}</div>
                 <div style={{ fontSize: '16px', fontWeight: 700 }}>
                   {formatCurrency(account?.balance || 0)}
                 </div>
+                {invested > 0 && (
+                  <div style={{ fontSize: '10px', color: 'var(--accent-green)' }}>
+                    {formatCurrency(invested)} invested (tax-free growth)
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
 
+        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+          IRA contributions are invested in stocks and bonds. All gains grow tax-free.
+        </p>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <input
             type="number"
@@ -296,17 +358,11 @@ export function InvestingPanel() {
           <button className="btn btn-primary" onClick={() => {
             const amt = parseFloat(retirementAmount);
             if (amt > 0) { contribute401k('roth_ira', amt); setRetirementAmount(''); }
-          }}>Roth IRA</button>
+          }}>Invest in Roth IRA</button>
           <button className="btn btn-outline" onClick={() => {
             const amt = parseFloat(retirementAmount);
             if (amt > 0) { contribute401k('traditional_ira', amt); setRetirementAmount(''); }
-          }}>Traditional IRA</button>
-          {has401k && (
-            <button className="btn btn-success" onClick={() => {
-              const amt = parseFloat(retirementAmount);
-              if (amt > 0) { contribute401k('401k', amt); setRetirementAmount(''); }
-            }}>401(k)</button>
-          )}
+          }}>Invest in Traditional IRA</button>
         </div>
       </div>
     </div>

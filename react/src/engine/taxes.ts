@@ -2,6 +2,30 @@
 import { W4Form, TaxReturn, GameState } from './types';
 import { TAX_BRACKETS_FEDERAL, STANDARD_DEDUCTION } from './constants';
 
+// The in-game calendar: week 0 is Jan 6, 2025; each week is 7 days.
+const GAME_START = new Date(2025, 0, 6);
+
+export function gameDate(week: number): Date {
+  return new Date(GAME_START.getTime() + week * 7 * 24 * 60 * 60 * 1000);
+}
+
+// Did this week cross a given calendar month/day (0-based month) since last week?
+// True when last week was before the target date and this week is on/after it.
+export function crossedCalendarDate(week: number, month: number, day: number): boolean {
+  const prev = gameDate(week - 1);
+  const curr = gameDate(week);
+  const year = curr.getFullYear();
+  // Build the target for the year the current week falls in; also check prev year's
+  // target in case the week straddles a year boundary.
+  const targets = [new Date(year, month, day), new Date(prev.getFullYear(), month, day)];
+  return targets.some((t) => prev.getTime() < t.getTime() && curr.getTime() >= t.getTime());
+}
+
+// Format a week as a short calendar date (e.g. "Apr 15, 2026").
+export function formatGameDate(week: number): string {
+  return gameDate(week).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 export function createDefaultW4(): W4Form {
   return {
     type: 'W4_EZ',

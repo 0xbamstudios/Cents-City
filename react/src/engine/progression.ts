@@ -5,26 +5,32 @@ import { THRESHOLDS, LEVEL_TIME_MINUTES, FEATURE_FLAGS } from './constants';
 export function checkStageProgression(state: GameState): GameStage {
   const totalCash = state.checking.balance + state.savings.balance;
 
-  // Check from highest to lowest
+  // Compute the stage the current finances qualify for
+  let computed: GameStage;
   if (totalCash >= THRESHOLDS.INVESTING && state.retirementAccounts.length > 0) {
-    return 'LIFE_MILESTONES';
+    computed = 'LIFE_MILESTONES';
+  } else if (totalCash >= THRESHOLDS.INVESTING) {
+    computed = 'INVESTING';
+  } else if (state.currentJob && parseInt(state.currentJob.level.replace('level', '')) >= 7) {
+    computed = 'CAREER_GROWTH';
+  } else if (totalCash >= THRESHOLDS.MOBILITY && state.vehicle.owned) {
+    computed = 'MOBILITY';
+  } else if (totalCash >= THRESHOLDS.CREDIT_BUILDING) {
+    computed = 'CREDIT_BUILDING';
+  } else if (totalCash >= THRESHOLDS.INDEPENDENCE) {
+    computed = 'INDEPENDENCE';
+  } else {
+    computed = 'GETTING_STARTED';
   }
-  if (totalCash >= THRESHOLDS.INVESTING) {
-    return 'INVESTING';
-  }
-  if (state.currentJob && parseInt(state.currentJob.level.replace('level', '')) >= 7) {
-    return 'CAREER_GROWTH';
-  }
-  if (totalCash >= THRESHOLDS.MOBILITY && state.vehicle.owned) {
-    return 'MOBILITY';
-  }
-  if (totalCash >= THRESHOLDS.CREDIT_BUILDING) {
-    return 'CREDIT_BUILDING';
-  }
-  if (totalCash >= THRESHOLDS.INDEPENDENCE) {
-    return 'INDEPENDENCE';
-  }
-  return 'GETTING_STARTED';
+
+  // Progression is one-way: never regress below the highest stage already reached.
+  // This keeps features (investing, credit, etc.) unlocked even if cash later dips.
+  const order: GameStage[] = [
+    'GETTING_STARTED', 'INDEPENDENCE', 'CREDIT_BUILDING',
+    'MOBILITY', 'CAREER_GROWTH', 'INVESTING', 'LIFE_MILESTONES',
+  ];
+  const prev = state.stage || 'GETTING_STARTED';
+  return order.indexOf(computed) >= order.indexOf(prev) ? computed : prev;
 }
 
 export function canSpeedUp(state: GameState): boolean {

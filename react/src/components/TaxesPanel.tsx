@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { formatCurrency } from '../engine/finance';
-import { calculateAnnualTax, getW4Complexity } from '../engine/taxes';
+import { calculateAnnualTax, getW4Complexity, formatGameDate } from '../engine/taxes';
 import { W4Form } from '../engine/types';
 import { TaxFilingModal } from './TaxFilingModal';
 
@@ -16,9 +16,14 @@ export function TaxesPanel() {
     updateW4({ ...state.w4, [field]: value } as W4Form);
   };
 
-  const taxPreview = calculateAnnualTax(state);
-  const weeksInYear = state.currentWeek % 52 || 52;
-  const canFile = weeksInYear >= 50; // can file near end of year
+  const pending = state.pendingTaxReturn;
+  // Preview reflects the pending prior-year return if there is one, else the current year so far.
+  const taxPreview = pending
+    ? calculateAnnualTax({ ...state, yearToDateIncome: pending.income, yearToDateWithholding: pending.withholding } as any)
+    : calculateAnnualTax(state);
+  const windowOpen = !!pending && state.currentWeek >= pending.openWeek;
+  const isLate = !!pending && state.currentWeek > pending.dueWeek;
+  const canFile = windowOpen;
 
   return (
     <>
@@ -125,15 +130,35 @@ export function TaxesPanel() {
       {/* Tax Return / Filing */}
       <div className="card">
         <div className="card-header">
-          <span className="card-title">Tax Return Preview</span>
+          <span className="card-title">{pending ? `${pending.year} Tax Return` : 'Tax Return Preview'}</span>
           <button
-            className="btn btn-primary"
+            className={`btn ${isLate ? 'btn-danger' : 'btn-primary'}`}
             onClick={() => setShowFilingModal(true)}
             disabled={!canFile}
           >
-            {canFile ? 'File Return' : `File in ${52 - weeksInYear} weeks`}
+            {!pending ? 'Not due yet' : !windowOpen ? `Opens ${formatGameDate(pending.openWeek)}` : isLate ? 'File Now (late!)' : 'File Return'}
           </button>
         </div>
+
+        {/* Filing status banner */}
+        {pending && (
+          <div style={{
+            fontSize: '12px', marginBottom: '12px', padding: '8px 10px', borderRadius: '6px',
+            background: isLate ? 'rgba(239,68,68,0.1)' : windowOpen ? 'rgba(16,185,129,0.1)' : 'rgba(107,114,128,0.1)',
+            color: isLate ? 'var(--accent-red)' : windowOpen ? 'var(--accent-green)' : 'var(--text-secondary)',
+          }}>
+            {isLate
+              ? `⚠️ Past due (was ${formatGameDate(pending.dueWeek)}). Penalties so far: ${formatCurrency(pending.accruedPenalty)} and rising each week until you file.`
+              : windowOpen
+                ? `Filing is open. Due by ${formatGameDate(pending.dueWeek)}.`
+                : `Filing opens ${formatGameDate(pending.openWeek)}; due by ${formatGameDate(pending.dueWeek)}.`}
+          </div>
+        )}
+        {!pending && (
+          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
+            No return is due yet. After the year ends, your return becomes due — file between Jan 15 and Apr 15.
+          </p>
+        )}
         <div className="paycheck-stub">
           <div className="paycheck-row">
             <span>Gross Income (YTD)</span>

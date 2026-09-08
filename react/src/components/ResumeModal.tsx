@@ -120,9 +120,10 @@ export function ResumeModal({ onClose }: Props) {
 function getDegreeLabel(degree: DegreeType): string {
   const labels: Record<DegreeType, string> = {
     high_school: 'High School Diploma',
+    trade_school: 'Trade School Certificate',
     associates: "Associate's Degree",
     bachelors: "Bachelor's Degree",
-    masters: "Master's Degree",
+    mba: 'MBA',
   };
   return labels[degree];
 }

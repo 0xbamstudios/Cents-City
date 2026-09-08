@@ -54,16 +54,17 @@ export function canFoundStartup(state: GameState): boolean {
 export function isStartupScaled(startup: Startup): boolean {
   return startup.employees >= STARTUP.scaleEmployeeThreshold ||
     startup.stage === 'series_c' || startup.stage === 'series_d' || startup.public ||
-    startup.annualRevenue >= STARTUP.scaleRevenueThreshold;
+    startup.weeklyRevenue * 52 >= STARTUP.scaleRevenueThreshold;
 }
 
 export function founderWeeklyHours(startup: Startup): number {
-  if (!isStartupScaled(startup)) return 20; // early stage is lighter
+  if (startup.stage === 'stealth' && !isStartupScaled(startup)) return 20; // stealth is lighter
+  if (!isStartupScaled(startup)) return 30;
   return startup.founderRole === 'lead' ? STARTUP.leadHoursPerWeek : STARTUP.boardHoursPerWeek;
 }
 
 export function nextRound(stage: StartupStage): StartupStage | null {
-  const order: StartupStage[] = ['seed', 'series_a', 'series_b', 'series_c', 'series_d'];
+  const order: StartupStage[] = ['stealth', 'series_a', 'series_b', 'series_c', 'series_d'];
   const idx = order.indexOf(stage);
   if (idx < 0 || idx >= order.length - 1) return null;
   return order[idx + 1];
@@ -71,7 +72,7 @@ export function nextRound(stage: StartupStage): StartupStage | null {
 
 export function stageLabel(stage: StartupStage): string {
   switch (stage) {
-    case 'seed': return 'Seed (Self-Funded)';
+    case 'stealth': return 'Stealth Mode';
     case 'series_a': return 'Series A';
     case 'series_b': return 'Series B';
     case 'series_c': return 'Series C';
@@ -80,11 +81,26 @@ export function stageLabel(stage: StartupStage): string {
   }
 }
 
+// The minimum valuation required to attempt the next round.
+export function nextRoundMinValuation(stage: StartupStage): number | null {
+  const next = nextRound(stage);
+  if (!next || next === 'public') return null;
+  const cfg = (STARTUP.rounds as any)[next];
+  return cfg ? cfg.minValuation : null;
+}
+
+// Whether a funding round can be attempted right now (valuation met, not locked out).
+export function canAttemptRound(startup: Startup, currentWeek: number): boolean {
+  if (startup.failed || startup.public) return false;
+  if (currentWeek < (startup.fundingLockoutUntilWeek || 0)) return false;
+  const minVal = nextRoundMinValuation(startup.stage);
+  if (minVal === null) return false;
+  return startup.valuation >= minVal;
+}
+
 export function canIPO(startup: Startup): boolean {
   if (startup.public || startup.failed) return false;
-  // Must be at least Series C and profitable (revenue > 0 and reasonable scale)
-  const stageOK = startup.stage === 'series_c' || startup.stage === 'series_d';
-  return stageOK && startup.annualRevenue >= STARTUP.scaleRevenueThreshold;
+  return startup.valuation >= STARTUP.ipo.minValuation;
 }
 
 // ── helpers ──

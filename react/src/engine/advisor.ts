@@ -84,16 +84,51 @@ export function generateAdvisorMessages(state: GameState, prevState: GameState |
     }
   }
 
-  // Credit card balance growing
+  // Credit card balance growing — shown less often once a good payment history is established
   const totalCreditDebt = state.creditCards.reduce((sum, c) => sum + c.balance, 0);
   if (totalCreditDebt > 0 && prevState) {
     const prevDebt = prevState.creditCards.reduce((sum, c) => sum + c.balance, 0);
     if (totalCreditDebt > prevDebt * 1.5 && totalCreditDebt > 200) {
-      messages.push(createMessage(
-        'Your credit card balance is growing. Pay it off to avoid interest charges and protect your credit score.',
-        'warning', week
-      ));
+      // Count on-time payments across all cards to gauge how experienced the user is
+      let onTimePayments = 0;
+      let totalPayments = 0;
+      for (const card of state.creditCards) {
+        for (const p of card.paymentHistory) {
+          totalPayments++;
+          if (p.onTime) onTimePayments++;
+        }
+      }
+      const goodHistory = totalPayments >= 6 && (onTimePayments / totalPayments) >= 0.9;
+
+      // With a good payment history, only nudge occasionally (every ~12 weeks) instead of every spike
+      const shouldWarn = !goodHistory || (week % 12 === 0);
+      if (shouldWarn) {
+        messages.push(createMessage(
+          'Your credit card balance is growing. Pay it off to avoid interest charges and protect your credit score.',
+          'warning', week
+        ));
+      }
     }
+  }
+
+  // Behind on mortgage or a loan
+  const behindMessages: string[] = [];
+  // Mortgage: warn if it went unpaid (remaining balance grew from missed payment)
+  if (state.housing.mortgage && prevState?.housing.mortgage) {
+    if (state.housing.mortgage.remainingBalance > prevState.housing.mortgage.remainingBalance) {
+      behindMessages.push('You\'re behind on your mortgage. Missed payments add interest and can lead to foreclosure — catch up as soon as you can.');
+    }
+  }
+  // Car loan or any other loan: warn if past due
+  for (const loan of state.loans || []) {
+    if (loan.remainingBalance > 0 && loan.weeksPastDue > 0) {
+      behindMessages.push(`You\'re behind on your ${loan.name}. Late payments hurt your credit score and add fees.`);
+      break;
+    }
+  }
+  if (behindMessages.length > 0) {
+    // Only surface one loan warning per week to avoid spam
+    messages.push(createMessage(behindMessages[0], 'warning', week));
   }
 
   // No savings

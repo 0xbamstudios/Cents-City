@@ -37,6 +37,20 @@ export const CAPITAL_GAINS_RATES = {
   longTermThresholdWeeks: 52, // 1 year = long term
 } as const;
 
+// Tax filing calendar (0-based months). The prior year's return can be filed
+// starting Jan 15 and must be filed by Apr 15, with a reminder on Apr 1.
+export const TAX_DEADLINES = {
+  openMonth: 0, openDay: 15,       // Jan 15 — filing window opens
+  reminderMonth: 3, reminderDay: 1, // Apr 1 — reminder
+  dueMonth: 3, dueDay: 15,         // Apr 15 — deadline
+} as const;
+
+// Penalties for filing late (after Apr 15)
+export const TAX_LATE_PENALTY = {
+  flatFee: 135,             // one-time failure-to-file fee
+  weeklyInterestRate: 0.0015, // ~8%/yr, accrues weekly on the tax owed while unfiled
+} as const;
+
 export const CREDIT_SCORE_RANGES = {
   POOR: { min: 300, max: 579 },
   FAIR: { min: 580, max: 669 },
@@ -101,8 +115,111 @@ export const RETIREMENT = {
   rothIraLimit: 7000,        // annual contribution limit
   traditionalIraLimit: 7000,
   fourOhOneKLimit: 23000,
-  employerMatchPercent: 0.04, // 4% match
-  employerMatchMax: 0.06,     // up to 6% of salary
+  employerMatchPercent: 0.04, // employer matches your contribution up to 4%
+  employerMatchMax: 0.04,     // match caps at 4% — encourages diverting at least 4%
+  salaryAutoContributionPercent: 0.06, // default starting contribution rate
+  maxEmployeeContributionPercent: 0.10, // employees may divert up to 10% of pay
+  iraGrowthWeekly: 0.0015,   // ~8% annual growth on invested IRA balances
+} as const;
+
+// Car loan financing options
+export const CAR_LOAN = {
+  dealer: {
+    downPaymentPercent: 0.10, // 10% down at the dealer
+    apr: 0.089,               // dealer financing is pricier (8.9%)
+    termMonths: 60,
+  },
+  bank: {
+    downPaymentPercent: 0.20, // banks want 20% down
+    apr: 0.059,               // better rate (5.9%) but stricter
+    termMonths: 48,
+    minCreditScore: 640,      // bank requires decent credit
+  },
+} as const;
+
+// Unsecured personal loan from the bank (when you need cash). Rate scales with
+// credit score; limit scales with income and credit.
+export const PERSONAL_LOAN = {
+  termMonths: 36,
+  minAmount: 500,
+  maxAmount: 50000,
+  // APR by credit tier
+  aprExcellent: 0.09,   // 740+
+  aprGood: 0.14,        // 670+
+  aprFair: 0.22,        // 580+
+  aprPoor: 0.32,        // below 580 (or no score)
+  originationFeePct: 0.02, // 2% origination fee deducted from proceeds
+} as const;
+
+// Education programs. Full-time completes in `fullTimeWeeks`; part-time takes ~2x
+// but lets you keep working. Tuition is charged per credit as you complete them.
+export const EDUCATION = {
+  fullTimeCreditsPerWeek: 1.15,   // ~30 credits/year full-time
+  partTimeCreditsPerWeek: 0.46,   // ~12 credits/year part-time
+  employerCreditsPerYear: 12,     // salaried benefit: covers up to 12 credits/yr
+  programs: {
+    trade_school: {
+      label: 'Trade School',
+      credits: 30,
+      tuitionPerCredit: 265,   // ~$8k total
+      grantsDegree: 'trade_school' as const,
+    },
+    college: {
+      label: "College (Bachelor's)",
+      credits: 120,
+      tuitionPerCredit: 335,   // ~$40k total
+      grantsDegree: 'bachelors' as const,
+    },
+    mba: {
+      label: 'MBA Program',
+      credits: 60,
+      tuitionPerCredit: 1000,  // ~$60k total
+      grantsDegree: 'mba' as const,
+      requiresBachelors: true,
+    },
+  },
+} as const;
+
+// Startup / founder path
+export const STARTUP = {
+  successChance: 0.5,           // odds a funding round succeeds when attempted
+  seedSelfFunding: 15000,       // cash the founder puts in to start (initial treasury)
+  founderStartEquity: 1.0,      // 100% at founding
+
+  // Stealth-stage starting economics
+  startWeeklyRevenue: 400,      // modest early revenue
+  startWeeklyCosts: 600,        // early burn (net negative — treasury slowly shrinks)
+  startEmployees: 1,
+
+  // Weekly organic dynamics
+  revenueGrowthPerWeek: 0.006,  // revenue trends up ~0.6%/week...
+  revenueNoise: 0.15,           // ...with ±15% weekly noise (can shrink)
+  costGrowthPerWeek: 0.004,     // costs creep up ~0.4%/week as the company grows
+  employeeGrowthPerWeek: 0.03,  // ~0.03 employee/week accrual (scales with size)
+  valuationRevenueMultiple: 30, // valuation ≈ annualized revenue * this + treasury
+
+  // Funding rounds — gated by valuation; each injects capital + dilutes founder
+  rounds: {
+    series_a: { minValuation: 100000, raise: 500000, dilution: 0.20, revenueBump: 3.0, costBump: 2.2, employeeBump: 6 },
+    series_b: { minValuation: 250000, raise: 2000000, dilution: 0.18, revenueBump: 2.5, costBump: 2.0, employeeBump: 20 },
+    series_c: { minValuation: 500000, raise: 8000000, dilution: 0.15, revenueBump: 2.2, costBump: 1.9, employeeBump: 60 },
+    series_d: { minValuation: 2000000, raise: 20000000, dilution: 0.12, revenueBump: 2.0, costBump: 1.8, employeeBump: 150 },
+  },
+  ipo: {
+    minValuation: 1000000,        // IPO once the company is worth at least $1M
+    cashOutPct: 0.10,             // founder cashes out 10% of their stake at IPO
+  },
+
+  // Failed-round consequences
+  failedRoundCostSurchargePct: 0.05, // +5% costs...
+  failedRoundSurchargeWeeks: 13,     // ...for ~3 months
+  failedRoundLockoutWeeks: 9,        // ...and can't retry for ~2 months
+
+  leadHoursPerWeek: 70,           // once scaled
+  boardHoursPerWeek: 12,
+  ceoSalary: 4000,                // weekly cost of hiring a CEO (board option)
+  scaleEmployeeThreshold: 6,
+  scaleRevenueThreshold: 500000,
 } as const;
 
 export const CREDIT_CARD_OPTIONS = [
@@ -110,24 +227,24 @@ export const CREDIT_CARD_OPTIONS = [
     id: 'starter_card',
     name: 'Cents City Starter Card',
     limit: 500,
-    apr: 0.2499,
-    description: 'A starter card to build credit. Low limit, high APR.',
+    apr: 0.24,
+    description: 'A starter card to build credit. Low limit, 24% APR on past-due balances.',
   },
   {
     id: 'cashback_card',
     name: 'Cents City Cash Back',
     limit: 2000,
-    apr: 0.1999,
+    apr: 0.21,
     minCreditScore: 650,
-    description: '1.5% cash back on all purchases.',
+    description: '1.5% cash back on all purchases. 21% APR on past-due balances.',
   },
   {
     id: 'rewards_card',
     name: 'Cents City Rewards+',
     limit: 5000,
-    apr: 0.1699,
+    apr: 0.19,
     minCreditScore: 720,
-    description: '2x points on dining and travel.',
+    description: '2x points on dining and travel. 19% APR on past-due balances.',
   },
 ] as const;
 
@@ -141,7 +258,12 @@ export const WEEKLY_EXPENSES = {
   phone: 20,
 } as const;
 
-export const SKILL_GAIN_PER_WEEK = 2; // base skill points per week worked
+// The object of the game: retire with a net worth of at least this much.
+export const RETIRE_TARGET = 3000000;
+
+export const SKILL_GAIN_PER_WEEK = 0.8; // base skill points per week worked (gradual growth)
+// Physical endurance is exempt from the slower pace — it builds/erodes at its own rate.
+export const PHYSICAL_ENDURANCE_GAIN_PER_WEEK = 2;
 
 export const WORK_LIMITS = {
   maxHoursPerWeek: 90,

@@ -27,7 +27,11 @@ export type SkillType =
   | 'organization'
   | 'negotiation'
   | 'data_analysis'
-  | 'teamwork';
+  | 'teamwork'
+  | 'happiness'
+  // Derived skills — appear only once prerequisite skills are mastered
+  | 'executive_acumen'
+  | 'financial_leadership';
 
 export type AccountType = 'checking' | 'savings';
 
@@ -46,6 +50,8 @@ export type RetirementAccountType = 'roth_ira' | 'traditional_ira' | '401k';
 
 export type PayType = 'hourly' | 'salary';
 
+export type JobFamily = 'general' | 'finance' | 'csuite' | 'ceo' | 'cfo' | 'bank' | 'marketing' | 'software' | 'engineering';
+
 export interface Job {
   id: string;
   title: string;
@@ -61,6 +67,16 @@ export interface Job {
   promotesFrom?: string;
   weeksRequired?: number;
   offers401k?: boolean; // true for all salary jobs + select hourly (e.g. municipal)
+
+  // Advanced career gating
+  family?: JobFamily;                 // classification used for prerequisite tracking
+  minExecutiveAcumen?: number;        // requires Executive Acumen >= this (0-100)
+  requiresFinancialLeadership?: boolean; // requires Financial Leadership to be unlocked
+  requiresFamilyExperience?: JobFamily;  // must have worked a job of this family before
+  requiresFamilyWeeks?: number;          // weeks of that family experience required
+  minResponsibility?: number;            // requires Responsibility skill >= this (0-100)
+  annualSalary?: number;              // for salaried exec/finance roles (overrides hourly calc)
+  annualBonusMaxPct?: number;         // C-Suite: max annual bonus as % of salary (0-0.5)
 }
 
 export interface BankAccount {
@@ -131,6 +147,19 @@ export interface W4Form {
   exemptFromWithholding: boolean;
 }
 
+// A prior-year return awaiting filing (window opens Jan 15, due Apr 15).
+export interface PendingTaxReturn {
+  year: number;            // the game-year the return is for
+  income: number;          // that year's gross income (frozen snapshot)
+  withholding: number;     // that year's federal withholding (frozen snapshot)
+  openWeek: number;        // week the filing window opens (~Jan 15)
+  dueWeek: number;         // week the return is due (~Apr 15)
+  accruedPenalty: number;  // late fees + interest accrued so far
+  weeksLate: number;       // weeks past the deadline while still unfiled
+  flatFeeApplied: boolean; // one-time late fee already added?
+  remindersFired: { open: boolean; reminder: boolean; due: boolean };
+}
+
 export interface TaxReturn {
   year: number;
   grossIncome: number;
@@ -182,6 +211,7 @@ export interface Housing {
   type: 'parents_basement' | 'apartment' | 'nice_apartment' | 'house' | 'nice_house';
   rent: number;
   utilities: number;
+  homeValue?: number; // current appreciated market value
   mortgage?: {
     principal: number;
     interestRate: number;
@@ -196,6 +226,8 @@ export interface InvestmentLot {
   purchaseWeek: number;
 }
 
+export type InvestmentAccount = 'brokerage' | 'roth_ira' | 'traditional_ira' | '401k';
+
 export interface Investment {
   id: string;
   type: InvestmentType;
@@ -205,14 +237,84 @@ export interface Investment {
   currentPrice: number;
   purchaseWeek: number;
   lots: InvestmentLot[];
+  account?: InvestmentAccount; // which account holds this position (default brokerage)
+}
+
+// A tradable stock in the global market.
+export interface Stock {
+  id: string;
+  name: string;
+  price: number;
+  prevPrice: number;         // last week's price (for change %)
+  volatility: number;        // base weekly volatility (0-1 scale)
+  rateSensitivity: number;   // how much high interest rates drag the price (0-1)
+  inflationSensitivity: number; // how much high inflation drags the price (0-1)
+}
+
+// A macro/market news headline. May target a specific stock and move its price.
+export interface NewsItem {
+  id: string;
+  week: number;
+  headline: string;
+  stockId?: string;   // if set, this news moves that stock
+  impactPct: number;  // signed % applied to the target stock next step (e.g. +0.08)
 }
 
 export interface RetirementAccount {
+  id?: string;            // unique id (used to distinguish multiple 401ks from different jobs)
   type: RetirementAccountType;
   balance: number;
   contributions: number;
   employerMatch?: number;
   yearlyContributionLimit: number;
+  invested?: number;      // portion invested in stocks/bonds (grows tax-free for IRAs)
+  jobId?: string;         // for 401k: the job this account is tied to
+  jobTitle?: string;      // for 401k: display name of the sponsoring employer
+  active?: boolean;       // for 401k: false once you leave the job (rollover-eligible)
+}
+
+export type StartupStage = 'stealth' | 'series_a' | 'series_b' | 'series_c' | 'series_d' | 'public';
+export type FounderRole = 'lead' | 'board';
+
+export interface Startup {
+  id: string;                      // unique id (backend correlation)
+  name: string;
+  idea: string;                    // the founder's pitch, a few sentences
+  foundedWeek: number;
+  stage: StartupStage;
+  founderRole: FounderRole;        // lead (70h once scaled) or board (12h, pays a CEO)
+  founderEquityPct: number;        // player's ownership %, diluted by funding rounds
+  valuation: number;               // current company valuation (tracks enterprise wealth)
+  treasury: number;                // company's cash on hand — fails if this hits 0
+  weeklyRevenue: number;           // money coming in each week (noisy)
+  weeklyCosts: number;             // burn each week; grows as the company scales
+  employees: number;
+  cashRaised: number;              // total external capital raised
+  weeklyFounderPay: number;        // salary the founder draws (0 until it can afford it)
+  ceoSalary: number;               // paid if founderRole === 'board'
+  failed: boolean;
+  public: boolean;                 // has IPO'd
+  lastRoundWeek: number;
+  // Failed-round consequences
+  costSurchargeUntilWeek: number;  // costs are +5% until this week (0 = none)
+  fundingLockoutUntilWeek: number; // cannot attempt a raise until this week (0 = none)
+  employeeAccrual: number;         // fractional employee growth carried between weeks
+}
+
+export type LoanType = 'auto_dealer' | 'auto_bank' | 'personal_bank';
+
+export interface Loan {
+  id: string;
+  type: LoanType;
+  name: string;
+  principal: number;
+  interestRate: number;      // annual APR
+  monthlyPayment: number;
+  remainingBalance: number;
+  termMonths: number;
+  startWeek: number;
+  nextDueWeek: number;       // week the next payment is due
+  weeksPastDue: number;      // how many weeks behind
 }
 
 export interface PlayerSkills {
@@ -225,6 +327,33 @@ export interface LifeEvent {
   week: number;
   description: string;
   financialImpact: number;
+}
+
+// A quick-time event awaiting the player's reaction. Holds the raw event effects
+// (see QuickEventEffects in events.ts) plus when it fired, so the modal can time
+// the reaction and scale the outcome.
+export interface PendingQuickEvent {
+  effects: {
+    id: string;
+    title: string;
+    message: string;
+    prompt?: string;
+    reactable?: boolean;
+    cashCost?: number;
+    loseVehicle?: boolean;
+    loaWeeks?: number;
+    addLoan?: Omit<Loan, 'startWeek' | 'nextDueWeek' | 'weeksPastDue'>;
+    insuranceSurchargePct?: number;
+    insuranceSurchargeWeeks?: number;
+    markRoofWeek?: boolean;
+    markPaintWeek?: boolean;
+    startChargingRent?: number;
+    evict?: boolean;
+    enableAutoTaxFiling?: boolean;
+    enableBankingApp?: boolean;
+  };
+  week: number;
+  firedAtMs: number; // Date.now() when the event popped, to measure reaction time
 }
 
 export interface AdvisorMessage {
@@ -261,7 +390,20 @@ export interface PlayerSummary {
   stage: GameStage;
 }
 
-export type DegreeType = 'high_school' | 'associates' | 'bachelors' | 'masters';
+export type DegreeType = 'high_school' | 'trade_school' | 'associates' | 'bachelors' | 'mba';
+
+export type ProgramType = 'trade_school' | 'college' | 'mba';
+export type EnrollmentPace = 'full_time' | 'part_time';
+
+export interface Enrollment {
+  program: ProgramType;
+  pace: EnrollmentPace;
+  creditsRequired: number;
+  creditsCompleted: number;
+  creditsPerYearBenefit: number; // employer-covered credits per year (0 if none)
+  tuitionPerCredit: number;
+  startWeek: number;
+}
 
 export interface Certificate {
   name: string;
@@ -273,6 +415,10 @@ export interface Certificate {
 export interface Education {
   highestDegree: DegreeType;
   certificates: Certificate[];
+  enrollment: Enrollment | null;
+  completedPrograms: ProgramType[];
+  businessClassesTaken: number; // continuing-ed business classes (for startup path)
+  employerCreditsUsedThisYear: number; // resets each game year
 }
 
 export interface Hobby {
@@ -299,6 +445,7 @@ export interface GameState {
   currentJob: Job | null;       // primary job (salary or first hourly)
   secondaryJobs: Job[];         // additional hourly jobs
   jobNotices: Record<string, number>; // job id -> week when notice expires (last day)
+  jobRejections: Record<string, number>; // job id -> week when a rejection cooldown expires
   totalWeeklyHours: number;     // computed: sum of all job hours
   exhaustion: number;           // 0-100, increases when >75h/week, slowly recovers
   hasHealthInsurance: boolean;  // true if any single hourly job is 40+ hours or any salary job
@@ -307,6 +454,7 @@ export interface GameState {
 
   // Hobbies
   activeHobbies: Hobby[];
+  hobbyWeeks: Record<string, number>; // cumulative weeks spent on each hobby (by id)
 
   // Finances
   checking: BankAccount;
@@ -334,6 +482,7 @@ export interface GameState {
   // Tax
   w4: W4Form;
   taxReturns: TaxReturn[];
+  pendingTaxReturn: PendingTaxReturn | null; // prior-year return awaiting filing
   yearToDateIncome: number;
   yearToDateWithholding: number;
 
@@ -348,6 +497,8 @@ export interface GameState {
   housing: Housing;
   investments: Investment[];
   retirementAccounts: RetirementAccount[];
+  loans: Loan[];
+  startup: Startup | null;
 
   // Career
   skills: PlayerSkills;
@@ -361,6 +512,23 @@ export interface GameState {
   children: number;
   lifeEvents: LifeEvent[];
 
+  // Milestones
+  achievedMilestones: string[];       // ids of celebrated milestones (fire once)
+  employedSinceWeek: number | null;   // week continuous employment began (null if jobless)
+
+  // Quick-time event reaction flow
+  pendingQuickEvent: PendingQuickEvent | null; // active event awaiting player reaction (pauses time)
+  firedEventIds: string[];            // ids of once-only events already triggered
+
+  // Quick-time life events
+  loaWeeksRemaining: number;          // unpaid (hourly) leave of absence weeks left
+  carInsuranceSurcharge: {            // temporary insurance hike after an accident
+    baseCostPerYear: number;          // pre-surcharge annual cost to restore later
+    untilWeek: number;                // week the surcharge expires
+  } | null;
+  lastRoofRepairWeek: number;         // -1 if never
+  lastPaintWeek: number;              // -1 if never
+
   // UI
   advisorMessages: AdvisorMessage[];
   events: GameEvent[];
@@ -371,7 +539,14 @@ export interface GameState {
     inflationMultiplier: number;
     currentGasPrice: number;
     weeklyFuelCost: number;
+    interestRate: number;   // short-term interest rate, as a percent (e.g. 4.5)
+    inflationRate: number;  // annual inflation rate, as a percent (e.g. 3.0)
+    costOfLivingIndex: number; // compounding cost-of-living multiplier (starts 1.0)
   };
+
+  // Market & news
+  stockMarket: Stock[];
+  newsHistory: NewsItem[];
 
   // Multiplayer
   multiplayer: MultiplayerState;

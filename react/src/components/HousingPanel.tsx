@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
 import { formatCurrency } from '../engine/finance';
-import { HOUSING_COSTS, VEHICLE_COSTS, THRESHOLDS } from '../engine/constants';
+import { HOUSING_COSTS, VEHICLE_COSTS, THRESHOLDS, CAR_LOAN } from '../engine/constants';
 import { VehicleOption } from '../engine/types';
 import vehiclesData from '../data/vehicles.json';
 
@@ -11,6 +11,7 @@ export function HousingPanel() {
   const moveToNiceApartment = useGameStore((s) => s.moveToNiceApartment);
   const buyHouse = useGameStore((s) => s.buyHouse);
   const acquireVehicle = useGameStore((s) => s.acquireVehicle);
+  const financeVehicle = useGameStore((s) => s.financeVehicle);
   const sellVehicle = useGameStore((s) => s.sellVehicle);
   const tradeInVehicle = useGameStore((s) => s.tradeInVehicle);
   const totalCash = state.checking.balance + state.savings.balance;
@@ -263,6 +264,7 @@ export function HousingPanel() {
           tradeInValue={tradeInValue}
           onAcquire={acquireVehicle}
           onTradeIn={tradeInVehicle}
+          onFinance={financeVehicle}
           hasVehicle={hasVehicle}
         />
 
@@ -290,16 +292,18 @@ function calculateMortgagePayment(config: { homePrice: number; downPayment: numb
   return Math.round((loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1));
 }
 
-function VehicleGrid({ vehicles, state, tradeInValue, onAcquire, onTradeIn, hasVehicle }: {
+function VehicleGrid({ vehicles, state, tradeInValue, onAcquire, onTradeIn, onFinance, hasVehicle }: {
   vehicles: VehicleOption[];
   state: any;
   tradeInValue: number;
   onAcquire: (id: string) => void;
   onTradeIn: (id: string) => void;
+  onFinance?: (id: string, lender: 'dealer' | 'bank') => void;
   hasVehicle: boolean;
 }) {
   const totalCash = state.checking.balance + state.savings.balance;
   const licenseCost = !state.vehicle.hasLicense ? VEHICLE_COSTS.license : 0;
+  const creditScore = state.creditScore?.score || 0;
 
   return (
     <div className="job-list">
@@ -308,6 +312,12 @@ function VehicleGrid({ vehicles, state, tradeInValue, onAcquire, onTradeIn, hasV
         const upfront = v.price + licenseCost;
         const canAfford = totalCash >= upfront;
         const canTradeIn = hasVehicle && state.vehicle.owned && totalCash >= Math.max(0, v.price - tradeInValue);
+
+        // Financing down payments
+        const dealerDown = Math.round(v.price * CAR_LOAN.dealer.downPaymentPercent) + licenseCost;
+        const bankDown = Math.round(v.price * CAR_LOAN.bank.downPaymentPercent) + licenseCost;
+        const canDealer = onFinance && v.type === 'buy' && totalCash >= dealerDown;
+        const canBank = onFinance && v.type === 'buy' && totalCash >= bankDown && creditScore >= CAR_LOAN.bank.minCreditScore;
 
         return (
           <div key={v.id} className={`job-card ${isCurrent ? 'current' : ''}`}>
@@ -331,10 +341,30 @@ function VehicleGrid({ vehicles, state, tradeInValue, onAcquire, onTradeIn, hasV
               {isCurrent ? (
                 <span style={{ fontSize: '12px', color: 'var(--accent-green)', fontWeight: 600 }}>✓ Current</span>
               ) : (
-                <div style={{ display: 'flex', gap: '4px' }}>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                   <button className="btn btn-primary" onClick={() => onAcquire(v.id)} disabled={!canAfford}>
-                    {canAfford ? (v.type === 'lease' ? 'Lease' : v.type === 'transit' ? 'Activate' : 'Buy') : 'Cant Afford'}
+                    {canAfford ? (v.type === 'lease' ? 'Lease' : v.type === 'transit' ? 'Activate' : 'Buy Cash') : 'Cant Afford'}
                   </button>
+                  {onFinance && v.type === 'buy' && (
+                    <button
+                      className="btn btn-outline"
+                      onClick={() => onFinance(v.id, 'dealer')}
+                      disabled={!canDealer}
+                      title={`Dealer financing: ${CAR_LOAN.dealer.downPaymentPercent * 100}% down, ${(CAR_LOAN.dealer.apr * 100).toFixed(1)}% APR, ${CAR_LOAN.dealer.termMonths}mo`}
+                    >
+                      Dealer Loan
+                    </button>
+                  )}
+                  {onFinance && v.type === 'buy' && (
+                    <button
+                      className="btn btn-outline"
+                      onClick={() => onFinance(v.id, 'bank')}
+                      disabled={!canBank}
+                      title={creditScore < CAR_LOAN.bank.minCreditScore ? `Needs ${CAR_LOAN.bank.minCreditScore}+ credit score` : `Bank financing: ${CAR_LOAN.bank.downPaymentPercent * 100}% down, ${(CAR_LOAN.bank.apr * 100).toFixed(1)}% APR, ${CAR_LOAN.bank.termMonths}mo`}
+                    >
+                      Bank Loan
+                    </button>
+                  )}
                   {hasVehicle && state.vehicle.owned && v.type === 'buy' && (
                     <button className="btn btn-outline" onClick={() => onTradeIn(v.id)} disabled={!canTradeIn}>
                       Trade In
