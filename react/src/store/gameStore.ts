@@ -180,7 +180,7 @@ const initialState = (): Omit<GameStore, 'startGame' | 'retire' | 'dismissTutori
   gameId: null,
   retired: false,
   gameLoopInterval: null,
-  settings: { autoBillPay: false, autoTaxFiling: false, autoCreditCardPay: false },
+  settings: { autoBillPay: true, autoTaxFiling: false, autoCreditCardPay: false },
   pendingBills: [],
 });
 
@@ -340,8 +340,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       notifications.push('✅ Tax service hired — your taxes will now be filed automatically. Manage it in Settings.');
     }
     if (evt.enableBankingApp) {
-      settings = { ...settings, autoBillPay: true, autoCreditCardPay: true };
-      notifications.push('✅ Banking app enabled — bills, rent, loans, and credit cards will now auto-pay. Manage it in Settings.');
+      settings = { ...settings, autoCreditCardPay: true };
+      notifications.push('✅ Banking app enabled — your credit cards will now auto-pay in full each month. Manage it in Settings.');
     }
 
     // Record once-only events so they don't fire again
@@ -596,20 +596,37 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     if (state.settings.autoBillPay) {
+      // Overdraft protection: pay from checking first, then savings if checking
+      // can't cover it. Returns true only if the bill was fully paid.
+      const payWithOverdraft = (amount: number, description: string, category: any): boolean => {
+        if (amount <= 0) return true;
+        if (checking.balance >= amount) {
+          const w = withdraw(checking, amount, week, description, category);
+          if (w) { checking = w; return true; }
+        } else if (checking.balance + savings.balance >= amount) {
+          // Drain checking, cover the rest from savings
+          const fromChecking = checking.balance;
+          if (fromChecking > 0) {
+            const w = withdraw(checking, fromChecking, week, description, category);
+            if (w) checking = w;
+          }
+          const remainder = Math.round((amount - fromChecking) * 100) / 100;
+          const s = withdraw(savings, remainder, week, `${description} (overdraft from savings)`, category);
+          if (s) { savings = s; return true; }
+        }
+        return false; // insufficient total funds
+      };
+
       // Auto-pay this week's recurring bills (rent, utilities, mortgage, insurance,
-      // registration, lease) from checking.
-      if (billAmount > 0) {
-        const w = withdraw(checking, billAmount, week, 'Auto-pay bills', 'rent');
-        if (w) checking = w;
-      }
-      // Also clear any pending bills generated while auto-pay was off (e.g. before
-      // enabling the banking app). Pay what we can from checking; keep unpayable ones.
+      // registration, lease) — checking first, then savings.
+      payWithOverdraft(billAmount, 'Auto-pay bills', 'rent');
+
+      // Clear any outstanding pending bills the same way.
       if (pendingBills.some(b => !b.paid)) {
         pendingBills = pendingBills.filter((bill) => {
           if (bill.paid) return false;
-          const w = withdraw(checking, bill.amount, week, `Auto-pay: ${bill.name}`, bill.category === 'rent' ? 'rent' : 'utilities');
-          if (w) { checking = w; return false; } // paid — drop from queue
-          return true; // couldn't afford it — leave it pending
+          const paid = payWithOverdraft(bill.amount, `Auto-pay: ${bill.name}`, bill.category === 'rent' ? 'rent' : 'utilities');
+          return !paid; // keep only bills we couldn't afford
         });
       }
     } else {

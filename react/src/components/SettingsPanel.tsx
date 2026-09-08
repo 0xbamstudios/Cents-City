@@ -20,9 +20,10 @@ export function SettingsPanel() {
         <div className="settings-list">
           <ToggleSetting
             label="Automated Bill Pay"
-            description="Automatically pay rent, utilities, auto insurance, and other recurring bills each period. When off, you must manually pay bills or face late fees and credit score penalties."
+            description="Always on. Rent, utilities, auto insurance, and other recurring bills are paid automatically from checking — and from savings via overdraft protection if checking runs short."
             value={settings.autoBillPay}
             onChange={(v) => updateSettings({ autoBillPay: v })}
+            disabled
           />
 
           <ToggleSetting
@@ -73,11 +74,13 @@ function ToggleSetting({
   description,
   value,
   onChange,
+  disabled,
 }: {
   label: string;
   description: string;
   value: boolean;
   onChange: (val: boolean) => void;
+  disabled?: boolean;
 }) {
   return (
     <div className="setting-row">
@@ -85,11 +88,12 @@ function ToggleSetting({
         <div className="setting-label">{label}</div>
         <div className="setting-desc">{description}</div>
       </div>
-      <label className="toggle-switch">
+      <label className="toggle-switch" style={disabled ? { opacity: 0.6, cursor: 'not-allowed' } : undefined}>
         <input
           type="checkbox"
           checked={value}
-          onChange={(e) => onChange(e.target.checked)}
+          disabled={disabled}
+          onChange={(e) => !disabled && onChange(e.target.checked)}
         />
         <span className="toggle-slider" />
       </label>

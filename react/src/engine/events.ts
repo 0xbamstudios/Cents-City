@@ -122,13 +122,13 @@ export function rollQuickEvents(state: GameState, week: number): QuickEventEffec
     };
   }
 
-  // A banking app after 2 years that automates recurring payments
-  if (!fired.includes('banking_app') && week >= 104 && (!settings.autoBillPay || !settings.autoCreditCardPay)) {
+  // A banking app after 2 years that automates credit-card payments
+  if (!fired.includes('banking_app') && week >= 104 && !settings.autoCreditCardPay) {
     return {
       id: 'banking_app',
       title: '📱 New Banking App',
-      message: `Two years in, your bank launches an app that automates your finances — it can auto-pay your rent, utilities, bills, loans, and credit cards so you never miss a payment. (You can turn auto-pay off later in Settings.)`,
-      prompt: 'Enable auto-pay',
+      message: `Two years in, your bank launches an app that can also auto-pay your credit cards in full each month so you never carry a balance or miss a payment. (You can turn this off later in Settings.)`,
+      prompt: 'Enable auto credit-card pay',
       enableBankingApp: true,
     };
   }
